@@ -95,12 +95,12 @@ export default async function ReportsPage() {
         sub="REPORTS"
         title="รายงาน"
         actions={
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-navy px-3.5 py-2 text-sm font-semibold text-white"
+          <a
+            href="/admin/reports/export"
+            className="inline-flex items-center gap-1.5 rounded-[10px] bg-navy px-3.5 py-2 text-sm font-semibold text-white shadow-card transition-opacity hover:opacity-95"
           >
-            <Download className="size-4" /> Export
-          </button>
+            <Download className="size-4" /> Export CSV
+          </a>
         }
       />
       <div className="flex-1 overflow-y-auto px-7 py-6">
