@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+public/generated/trip-covers/bhutan-cultural.png
+public/generated/trip-covers/iceland-northern-lights.png
+public/generated/trip-covers/japan-autumn-tour.png
+public/generated/trip-covers/new-zealand-south-island.png
+public/generated/trip-covers/norway-lofoten.png
+public/generated/trip-covers/norway.png
+public/generated/trip-covers/switzerland-alps.png
+public/generated/trip-covers/vietnam-sapa.png
