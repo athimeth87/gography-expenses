@@ -1,27 +1,43 @@
 "use client";
 
-import { useActionState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
+import { ArrowRight, Check } from "lucide-react";
 import { Logo } from "@/components/design/Logo";
 import { loginAction, type LoginState } from "./actions";
+import { cn } from "@/lib/utils";
+
+const REMEMBER_KEY = "gography:remembered-email";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(loginAction, undefined);
+  const [email, setEmail] = useState("");
+  const [remember, setRemember] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(REMEMBER_KEY);
+    if (saved) {
+      setEmail(saved);
+      setRemember(true);
+    }
+  }, []);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // Don't preventDefault — let the server action run.
+    if (remember && email.trim()) {
+      localStorage.setItem(REMEMBER_KEY, email.trim());
+    } else {
+      localStorage.removeItem(REMEMBER_KEY);
+    }
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-7 py-10">
-      <div className="relative">
-        <div className="flex items-center gap-3">
-          <Logo size={40} />
-          <div>
-            <div className="text-[22px] font-bold tracking-tight text-navy">GoGraphy Expenses</div>
-            <div className="mt-0.5 text-xs text-ink-3">Crew expense claims · v1.0</div>
-          </div>
+      <div className="flex items-center gap-3">
+        <Logo size={40} />
+        <div>
+          <div className="text-[22px] font-bold tracking-tight text-navy">GoGraphy Expenses</div>
+          <div className="mt-0.5 text-xs text-ink-3">Crew expense claims · v1.0</div>
         </div>
-        <div
-          className="pointer-events-none absolute -right-8 -top-3 size-36 rounded-full border border-navy-100"
-          aria-hidden
-        />
       </div>
 
       <div className="mt-16">
@@ -35,8 +51,16 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form action={formAction} className="mt-8 flex flex-col gap-3.5">
-        <Field name="email" type="email" label="Email" autoComplete="email" required />
+      <form action={formAction} onSubmit={handleSubmit} className="mt-8 flex flex-col gap-3.5">
+        <Field
+          name="email"
+          type="email"
+          label="Email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={setEmail}
+        />
         <Field
           name="password"
           type="password"
@@ -44,6 +68,17 @@ export default function LoginPage() {
           autoComplete="current-password"
           required
         />
+
+        <div className="flex items-center justify-between">
+          <RememberCheckbox checked={remember} onChange={setRemember} />
+          <button
+            type="button"
+            className="text-[13px] font-semibold text-navy hover:underline"
+            onClick={() => alert("ติดต่อแอดมินเพื่อรีเซ็ตรหัสผ่าน")}
+          >
+            ลืมรหัสผ่าน?
+          </button>
+        </div>
 
         {state?.error && (
           <div className="rounded-lg bg-status-rejected-bg px-3 py-2 text-sm text-status-rejected-fg">
@@ -68,19 +103,53 @@ export default function LoginPage() {
   );
 }
 
+function RememberCheckbox({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2 text-[13px] text-ink-2 select-none">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      <span
+        aria-hidden
+        className={cn(
+          "flex size-[18px] items-center justify-center rounded-md border-[1.4px] transition-colors",
+          checked ? "border-navy bg-navy" : "border-line bg-white"
+        )}
+      >
+        {checked && <Check className="size-3 text-white" strokeWidth={3} />}
+      </span>
+      จดจำการเข้าสู่ระบบ
+    </label>
+  );
+}
+
 function Field({
   name,
   label,
   type,
   autoComplete,
   required,
+  value,
+  onChange,
 }: {
   name: string;
   label: string;
   type: string;
   autoComplete?: string;
   required?: boolean;
+  value?: string;
+  onChange?: (v: string) => void;
 }) {
+  const controlled = value !== undefined && onChange !== undefined;
   return (
     <label className="block rounded-xl border-[1.4px] border-line bg-white px-3.5 py-2.5 transition-colors focus-within:border-navy">
       <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">{label}</div>
@@ -89,6 +158,9 @@ function Field({
         type={type}
         autoComplete={autoComplete}
         required={required}
+        {...(controlled
+          ? { value, onChange: (e) => onChange!(e.target.value) }
+          : {})}
         className="w-full border-0 bg-transparent py-1 text-base text-ink outline-none"
       />
     </label>

@@ -6,6 +6,8 @@ import { getTripWithMembers, listPhotographers } from "@/lib/queries/trips";
 import { createClient } from "@/lib/supabase/server";
 import { thb, dateTh } from "@/lib/format";
 import { AssignmentEditor } from "./AssignmentEditor";
+import { CoverEditor } from "./CoverEditor";
+import { tripCoverUrl } from "@/lib/storage";
 
 export default async function AdminTripDetailPage({
   params,
@@ -21,9 +23,10 @@ export default async function AdminTripDetailPage({
   const supabase = await createClient();
   const { data: expenses } = await supabase
     .from("expenses")
-    .select("id, amount, status")
-    .eq("trip_id", id);
-  const total = (expenses ?? []).reduce((sum, e) => sum + Number(e.amount), 0);
+    .select("id, amount_thb, status")
+    .eq("trip_id", id)
+    .neq("status", "draft");
+  const total = (expenses ?? []).reduce((sum, e) => sum + Number(e.amount_thb), 0);
 
   return (
     <>
@@ -43,11 +46,20 @@ export default async function AdminTripDetailPage({
       <div className="flex-1 overflow-y-auto px-7 py-6">
         <div className="grid gap-6 md:grid-cols-3">
           <section className="md:col-span-2 space-y-4">
-            <div className="rounded-2xl bg-white p-6 shadow-card">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">
-                Trip
-              </div>
-              <h2 className="mt-1 text-xl font-bold text-ink">{trip.title}</h2>
+            <div className="overflow-hidden rounded-2xl bg-white shadow-card">
+              {tripCoverUrl(trip.cover_image_path) && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={tripCoverUrl(trip.cover_image_path)!}
+                  alt={trip.title}
+                  className="aspect-[21/9] w-full object-cover"
+                />
+              )}
+              <div className="p-6">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">
+                  Trip
+                </div>
+                <h2 className="mt-1 text-xl font-bold text-ink">{trip.title}</h2>
               {trip.description && (
                 <p className="mt-2 text-sm text-ink-2">{trip.description}</p>
               )}
@@ -66,6 +78,7 @@ export default async function AdminTripDetailPage({
                   {trip.status === "active" ? "Active" : "Closed"}
                 </span>
               </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
@@ -78,7 +91,13 @@ export default async function AdminTripDetailPage({
             </div>
           </section>
 
-          <section className="md:col-span-1">
+          <section className="md:col-span-1 space-y-4">
+            <div className="rounded-2xl bg-white p-5 shadow-card">
+              <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-ink-3">
+                Cover Image
+              </div>
+              <CoverEditor tripId={trip.id} initialPath={trip.cover_image_path} />
+            </div>
             <div className="rounded-2xl bg-white p-5 shadow-card">
               <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-ink-3">
                 Photographers

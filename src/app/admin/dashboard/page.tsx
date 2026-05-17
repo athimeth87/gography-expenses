@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Clock, CheckCircle2, XCircle, Wallet, ChevronRight } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Wallet } from "lucide-react";
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
 import { createClient } from "@/lib/supabase/server";
 import { thb } from "@/lib/format";
+import { formatAmount } from "@/lib/currencies";
 import { CATEGORIES, type ExpenseCategory } from "@/lib/design-tokens";
 import { MonthlyBarChart, CategoryDonut } from "@/components/admin/DashboardCharts";
 import { CatIcon } from "@/components/design/CatIcon";
@@ -25,32 +26,32 @@ export default async function AdminDashboard() {
     await Promise.all([
       supabase
         .from("expenses")
-        .select("amount, status, category, created_at")
+        .select("amount_thb, status, category, created_at")
         .gte("created_at", monthStart),
       supabase
         .from("expenses")
-        .select("amount, expense_date")
+        .select("amount_thb, expense_date")
         .gte("expense_date", sixMonthsAgo.toISOString().slice(0, 10))
         .in("status", ["approved", "paid", "pending"]),
       supabase
         .from("expenses")
-        .select("*, profiles(name), trips(title)")
+        .select("*, profiles!user_id(name), trips(title)")
         .eq("status", "pending")
         .order("created_at", { ascending: false })
         .limit(5),
       supabase
         .from("trips")
-        .select("id, title, expenses(amount, status)")
+        .select("id, title, expenses(amount_thb, status)")
         .limit(20),
     ]);
 
   const mtd = mtdRows ?? [];
   const sum = (s: string) =>
-    mtd.filter((r) => r.status === s).reduce((acc, r) => acc + Number(r.amount), 0);
+    mtd.filter((r) => r.status === s).reduce((acc, r) => acc + Number(r.amount_thb), 0);
   const count = (s: string) => mtd.filter((r) => r.status === s).length;
   const totalSpend = mtd
     .filter((r) => r.status === "approved" || r.status === "paid")
-    .reduce((acc, r) => acc + Number(r.amount), 0);
+    .reduce((acc, r) => acc + Number(r.amount_thb), 0);
 
   const months: { month: string; total: number }[] = [];
   for (let i = 5; i >= 0; i--) {
@@ -62,15 +63,16 @@ export default async function AdminDashboard() {
     months.push({ month: label, total: 0 });
     const total = (histRows ?? [])
       .filter((r) => r.expense_date.startsWith(key))
-      .reduce((acc, r) => acc + Number(r.amount), 0);
+      .reduce((acc, r) => acc + Number(r.amount_thb), 0);
     months[months.length - 1].total = total;
   }
 
   const catTotals = new Map<ExpenseCategory, number>();
   for (const r of mtd) {
+    if (r.status === "draft") continue;
     catTotals.set(
       r.category as ExpenseCategory,
-      (catTotals.get(r.category as ExpenseCategory) ?? 0) + Number(r.amount)
+      (catTotals.get(r.category as ExpenseCategory) ?? 0) + Number(r.amount_thb)
     );
   }
   const pieData = CATEGORIES.filter((c) => (catTotals.get(c.key) ?? 0) > 0).map((c) => ({
@@ -79,14 +81,14 @@ export default async function AdminDashboard() {
     value: catTotals.get(c.key) ?? 0,
   }));
 
-  type TripRow = { id: string; title: string; expenses: { amount: number; status: string }[] | null };
+  type TripRow = { id: string; title: string; expenses: { amount_thb: number; status: string }[] | null };
   const topList = ((topTrips ?? []) as TripRow[])
     .map((t) => {
-      const exps = t.expenses ?? [];
+      const exps = (t.expenses ?? []).filter((e) => e.status !== "draft");
       return {
         id: t.id,
         title: t.title,
-        total: exps.reduce((s, e) => s + Number(e.amount), 0),
+        total: exps.reduce((s, e) => s + Number(e.amount_thb), 0),
       };
     })
     .sort((a, b) => b.total - a.total)
@@ -180,7 +182,7 @@ export default async function AdminDashboard() {
                     </div>
                     <div className="text-right">
                       <div className="font-mono text-sm font-semibold text-ink">
-                        ฿{thb(Number(r.amount))}
+                        {formatAmount(Number(r.amount), r.currency)}
                       </div>
                       <StatusPill status="pending" size="sm" className="mt-1" />
                     </div>

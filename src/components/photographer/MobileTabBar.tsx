@@ -25,7 +25,7 @@ export function MobileTabBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-0 z-30 flex shrink-0 justify-around gap-1 border-t border-line bg-white px-2.5 pb-6 pt-2">
+    <nav className="sticky bottom-0 z-30 flex shrink-0 justify-around gap-1 border-t border-line bg-white px-2.5 pb-6 pt-2 lg:hidden">
       {TABS.map(({ key, label, href, Icon, center }) => {
         const isActive =
           pathname === href || (href !== "/dashboard" && pathname.startsWith(href));

@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { StatusPill } from "@/components/design/StatusPill";
-import { CatIcon } from "@/components/design/CatIcon";
-import { thb, dateTh } from "@/lib/format";
+import { thb } from "@/lib/format";
+import { HistoryRow } from "./HistoryRow";
 import type { Expense, ExpenseStatus, Trip } from "@/types/database";
 
 type Row = Expense & { trips: Pick<Trip, "title"> | null };
 
 const FILTERS: { key: ExpenseStatus | "all"; label: string }[] = [
   { key: "all", label: "ทั้งหมด" },
+  { key: "draft", label: "ร่าง" },
   { key: "pending", label: "รออนุมัติ" },
   { key: "approved", label: "อนุมัติ" },
   { key: "rejected", label: "ปฏิเสธ" },
@@ -33,21 +33,37 @@ export default async function HistoryPage({
   const rows = (data ?? []) as Row[];
   const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
 
-  const total = rows.reduce((s, r) => s + Number(r.amount), 0);
+  const draftCount = rows.filter((r) => r.status === "draft").length;
+  const total = rows
+    .filter((r) => r.status !== "draft")
+    .reduce((s, r) => s + Number(r.amount_thb), 0);
   const paid = rows
     .filter((r) => r.status === "paid" || r.status === "approved")
-    .reduce((s, r) => s + Number(r.amount), 0);
+    .reduce((s, r) => s + Number(r.amount_thb), 0);
   const pending = rows
     .filter((r) => r.status === "pending")
-    .reduce((s, r) => s + Number(r.amount), 0);
+    .reduce((s, r) => s + Number(r.amount_thb), 0);
 
   return (
-    <div className="flex flex-1 flex-col px-6 pb-6 pt-8">
-      <h1 className="text-xl font-bold text-ink">ประวัติการเบิก</h1>
-      <p className="mt-1 text-sm text-ink-3">รายการทั้งหมดของฉัน</p>
+    <div className="flex flex-1 flex-col px-6 pb-6 pt-8 lg:mx-auto lg:w-full lg:max-w-5xl lg:px-8 lg:py-10">
+      <div className="hidden text-[11px] font-semibold uppercase tracking-wider text-ink-3 lg:block">
+        HISTORY
+      </div>
+      <h1 className="text-xl font-bold text-ink lg:mt-1 lg:text-2xl">ประวัติการเบิก</h1>
+      <p className="mt-1 text-sm text-ink-3">
+        รายการทั้งหมดของฉัน
+        {draftCount > 0 && (
+          <>
+            {" · "}
+            <Link href="/history?filter=draft" className="font-semibold text-navy">
+              มี {draftCount} ร่างรอกรอก →
+            </Link>
+          </>
+        )}
+      </p>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <Stat label="รวมทั้งหมด" value={`฿${thb(total)}`} />
+        <Stat label="รวมที่ส่ง" value={`฿${thb(total)}`} />
         <Stat label="ได้เงิน" value={`฿${thb(paid)}`} tone="approved" />
         <Stat label="รอเงิน" value={`฿${thb(pending)}`} tone="pending" />
       </div>
@@ -76,37 +92,7 @@ export default async function HistoryPage({
           </div>
         )}
         {filtered.map((e) => (
-          <div
-            key={e.id}
-            className="flex items-start gap-3 rounded-2xl border border-line bg-white p-3"
-          >
-            <div className="flex size-11 items-center justify-center rounded-xl bg-navy-50 text-navy">
-              <CatIcon cat={e.category} size={22} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-ink">
-                    {e.store_name ?? "—"}
-                  </div>
-                  <div className="text-[11px] text-ink-3">
-                    {e.trips?.title ?? ""} · {dateTh(e.expense_date)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-sm font-semibold text-ink">
-                    ฿{thb(Number(e.amount))}
-                  </div>
-                  <StatusPill status={e.status} size="sm" className="mt-1" />
-                </div>
-              </div>
-              {e.admin_note && (
-                <div className="mt-2 rounded-lg bg-status-rejected-bg px-2.5 py-1.5 text-[11px] text-status-rejected-fg">
-                  เหตุผล: {e.admin_note}
-                </div>
-              )}
-            </div>
-          </div>
+          <HistoryRow key={e.id} expense={e} tripTitle={e.trips?.title ?? null} />
         ))}
       </div>
     </div>

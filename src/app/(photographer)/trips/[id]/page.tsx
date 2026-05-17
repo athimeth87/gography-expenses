@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { CatIcon } from "@/components/design/CatIcon";
 import { StatusPill } from "@/components/design/StatusPill";
 import { thb, dateTh } from "@/lib/format";
-import type { Expense, ExpenseStatus } from "@/types/database";
+import { formatAmount } from "@/lib/currencies";
+import { tripCoverUrl } from "@/lib/storage";
+import type { Expense, ExpenseStatus, Trip } from "@/types/database";
 
 const FILTERS: { key: ExpenseStatus | "all"; label: string }[] = [
   { key: "all", label: "ทั้งหมด" },
@@ -27,8 +29,9 @@ export default async function PhotographerTripDetailPage({
   const { filter = "all" } = await searchParams;
 
   const supabase = await createClient();
-  const { data: trip } = await supabase.from("trips").select("*").eq("id", id).single();
-  if (!trip) notFound();
+  const { data: tripData } = await supabase.from("trips").select("*").eq("id", id).single();
+  if (!tripData) notFound();
+  const trip = tripData as Trip;
 
   const { data: rows } = await supabase
     .from("expenses")
@@ -41,14 +44,15 @@ export default async function PhotographerTripDetailPage({
   const filtered =
     filter === "all" ? expenses : expenses.filter((e) => e.status === filter);
 
+  const nonDraft = expenses.filter((e) => e.status !== "draft");
   const totals = {
-    all: expenses.reduce((s, e) => s + Number(e.amount), 0),
-    approved: expenses
+    all: nonDraft.reduce((s, e) => s + Number(e.amount_thb), 0),
+    approved: nonDraft
       .filter((e) => e.status === "approved" || e.status === "paid")
-      .reduce((s, e) => s + Number(e.amount), 0),
-    pending: expenses
+      .reduce((s, e) => s + Number(e.amount_thb), 0),
+    pending: nonDraft
       .filter((e) => e.status === "pending")
-      .reduce((s, e) => s + Number(e.amount), 0),
+      .reduce((s, e) => s + Number(e.amount_thb), 0),
   };
 
   const grouped = filtered.reduce<Record<string, Expense[]>>((acc, e) => {
@@ -57,23 +61,38 @@ export default async function PhotographerTripDetailPage({
   }, {});
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between px-5 pb-3 pt-5">
-        <Link href="/trips" className="text-ink-2">
-          <ArrowLeft className="size-5" />
+    <div className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-6xl lg:px-8 lg:py-8">
+      <header className="flex items-center justify-between px-5 pb-3 pt-5 lg:px-0 lg:pt-0">
+        <Link
+          href="/trips"
+          className="inline-flex items-center gap-1.5 text-ink-2 lg:text-sm lg:font-semibold"
+        >
+          <ArrowLeft className="size-5 lg:size-4" />
+          <span className="hidden lg:inline">กลับไปทริปทั้งหมด</span>
         </Link>
-        <div className="text-xs font-semibold text-ink-3">TRIP DETAIL</div>
-        <div className="size-5" />
+        <div className="text-xs font-semibold text-ink-3 lg:hidden">TRIP DETAIL</div>
+        <div className="size-5 lg:hidden" />
       </header>
 
-      <div className="px-6">
-        <h1 className="text-xl font-bold text-ink">{trip.title}</h1>
+      {tripCoverUrl(trip.cover_image_path) && (
+        <div className="mx-6 mb-3 overflow-hidden rounded-2xl border border-line lg:mx-0 lg:mb-5 lg:mt-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={tripCoverUrl(trip.cover_image_path)!}
+            alt={trip.title}
+            className="aspect-[21/9] w-full object-cover lg:aspect-[3/1]"
+          />
+        </div>
+      )}
+
+      <div className="px-6 lg:px-0">
+        <h1 className="text-xl font-bold text-ink lg:text-3xl">{trip.title}</h1>
         <div className="mt-2 flex items-center gap-2 text-xs text-ink-2">
           <MapPin className="size-3.5 text-ink-3" />
           {dateTh(trip.start_date)} → {dateTh(trip.end_date)}
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-navy p-4 text-white shadow-card">
+        <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-navy p-4 text-white shadow-card lg:mt-5 lg:max-w-xl lg:p-5">
           <Stat label="ยอดรวม" value={`฿${thb(totals.all)}`} />
           <Stat label="อนุมัติ" value={`฿${thb(totals.approved)}`} />
           <Stat label="รออนุมัติ" value={`฿${thb(totals.pending)}`} />
@@ -128,7 +147,7 @@ export default async function PhotographerTripDetailPage({
                     </div>
                     <div className="text-right">
                       <div className="font-mono text-sm font-semibold text-ink">
-                        ฿{thb(Number(e.amount))}
+                        {formatAmount(Number(e.amount), e.currency)}
                       </div>
                       <StatusPill status={e.status} size="sm" className="mt-1" />
                     </div>
@@ -142,7 +161,7 @@ export default async function PhotographerTripDetailPage({
 
       <Link
         href={`/expenses/new?trip=${id}`}
-        className="fixed bottom-24 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white shadow-fab"
+        className="fixed bottom-24 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white shadow-fab lg:bottom-8 lg:left-auto lg:right-8 lg:translate-x-0"
       >
         <Plus className="size-4" strokeWidth={2.4} /> เพิ่มค่าใช้จ่าย
       </Link>

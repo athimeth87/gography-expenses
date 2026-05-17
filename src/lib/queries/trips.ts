@@ -24,7 +24,11 @@ export async function listTripsForAdmin(): Promise<TripWithCounts[]> {
       .from("trip_members")
       .select("trip_id, user_id, profiles(name)")
       .in("trip_id", tripIds),
-    supabase.from("expenses").select("trip_id, amount").in("trip_id", tripIds),
+    supabase
+      .from("expenses")
+      .select("trip_id, amount_thb")
+      .in("trip_id", tripIds)
+      .neq("status", "draft"),
   ]);
 
   const memberMap = new Map<string, { user_id: string; name: string }[]>();
@@ -39,7 +43,7 @@ export async function listTripsForAdmin(): Promise<TripWithCounts[]> {
   for (const e of expenses ?? []) {
     const cur = expenseMap.get(e.trip_id) ?? { count: 0, total: 0 };
     cur.count += 1;
-    cur.total += Number(e.amount);
+    cur.total += Number(e.amount_thb);
     expenseMap.set(e.trip_id, cur);
   }
 
@@ -69,16 +73,18 @@ export async function listAssignedTrips(userId: string): Promise<TripWithCounts[
 
   const { data: expenses } = await supabase
     .from("expenses")
-    .select("trip_id, amount, user_id")
+    .select("trip_id, amount_thb, user_id, status")
     .in("trip_id", tripIds);
 
   return (trips ?? []).map((t) => {
-    const mine = (expenses ?? []).filter((e) => e.trip_id === t.id && e.user_id === userId);
+    const mine = (expenses ?? []).filter(
+      (e) => e.trip_id === t.id && e.user_id === userId && e.status !== "draft"
+    );
     return {
       ...(t as Trip),
       members: [],
       expense_count: mine.length,
-      total_amount: mine.reduce((sum, e) => sum + Number(e.amount), 0),
+      total_amount: mine.reduce((sum, e) => sum + Number(e.amount_thb), 0),
     };
   });
 }

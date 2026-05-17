@@ -12,24 +12,25 @@ export default async function ReportsPage() {
   const [{ data: rows }, { data: tripRows }, { data: photographerRows }] = await Promise.all([
     supabase
       .from("expenses")
-      .select("amount, status, category")
-      .gte("created_at", yearStart),
+      .select("amount_thb, status, category")
+      .gte("created_at", yearStart)
+      .neq("status", "draft"),
     supabase
       .from("trips")
-      .select("id, title, expenses(amount, category)")
+      .select("id, title, expenses(amount_thb, category, status)")
       .limit(10),
     supabase
       .from("profiles")
-      .select("id, name, expenses(amount, status)")
+      .select("id, name, expenses(amount_thb, status)")
       .eq("role", "photographer"),
   ]);
 
   const all = rows ?? [];
-  const totalExpense = all.reduce((s, r) => s + Number(r.amount), 0);
+  const totalExpense = all.reduce((s, r) => s + Number(r.amount_thb), 0);
   const approved = all.filter((r) => r.status === "approved" || r.status === "paid");
-  const approvedAmt = approved.reduce((s, r) => s + Number(r.amount), 0);
+  const approvedAmt = approved.reduce((s, r) => s + Number(r.amount_thb), 0);
   const paid = all.filter((r) => r.status === "paid");
-  const paidAmt = paid.reduce((s, r) => s + Number(r.amount), 0);
+  const paidAmt = paid.reduce((s, r) => s + Number(r.amount_thb), 0);
   const submittedCount = all.length;
   const approvedPct = submittedCount ? Math.round((approved.length / submittedCount) * 100) : 0;
   const paidPct = approved.length ? Math.round((paid.length / approved.length) * 100) : 0;
@@ -38,7 +39,7 @@ export default async function ReportsPage() {
   type TripRow = {
     id: string;
     title: string;
-    expenses: { amount: number; category: string }[] | null;
+    expenses: { amount_thb: number; category: string; status: string }[] | null;
   };
   const stackedTripData = ((tripRows ?? []) as TripRow[])
     .map((t) => {
@@ -53,8 +54,9 @@ export default async function ReportsPage() {
         other: 0,
       };
       for (const e of t.expenses ?? []) {
+        if (e.status === "draft") continue;
         base[e.category as ExpenseCategory] =
-          (base[e.category as ExpenseCategory] ?? 0) + Number(e.amount);
+          (base[e.category as ExpenseCategory] ?? 0) + Number(e.amount_thb);
       }
       return base;
     })
@@ -64,12 +66,12 @@ export default async function ReportsPage() {
   type PhotographerRow = {
     id: string;
     name: string;
-    expenses: { amount: number; status: string }[] | null;
+    expenses: { amount_thb: number; status: string }[] | null;
   };
   const leaderboard = ((photographerRows ?? []) as PhotographerRow[])
     .map((p) => {
-      const exps = p.expenses ?? [];
-      const total = exps.reduce((s, e) => s + Number(e.amount), 0);
+      const exps = (p.expenses ?? []).filter((e) => e.status !== "draft");
+      const total = exps.reduce((s, e) => s + Number(e.amount_thb), 0);
       const apr = exps.filter((e) => e.status === "approved" || e.status === "paid").length;
       const rej = exps.filter((e) => e.status === "rejected").length;
       const claims = exps.length;

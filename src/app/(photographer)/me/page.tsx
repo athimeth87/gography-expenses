@@ -13,8 +13,11 @@ export default async function MePage() {
     .single();
 
   return (
-    <div className="flex flex-1 flex-col px-6 pb-6 pt-8">
-      <h1 className="text-xl font-bold text-ink">บัญชีของฉัน</h1>
+    <div className="flex flex-1 flex-col px-6 pb-6 pt-8 lg:mx-auto lg:w-full lg:max-w-2xl lg:px-8 lg:py-10">
+      <div className="hidden text-[11px] font-semibold uppercase tracking-wider text-ink-3 lg:block">
+        ACCOUNT
+      </div>
+      <h1 className="text-xl font-bold text-ink lg:mt-1 lg:text-2xl">บัญชีของฉัน</h1>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl border border-line bg-white p-4">
         <Logo size={36} />

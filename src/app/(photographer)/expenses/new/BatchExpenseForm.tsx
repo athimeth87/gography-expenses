@@ -5,6 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import { ArrowLeft, Camera, Upload, Plus, Trash2, Loader2 } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { CategoryPicker } from "@/components/forms/CategoryPicker";
+import { CURRENCIES } from "@/lib/currencies";
 import { createClient } from "@/lib/supabase/client";
 import { submitBatchExpensesAction, redirectToHistory } from "./actions";
 import type { ExpenseCategory } from "@/lib/design-tokens";
@@ -19,6 +20,7 @@ type Item = {
   uploadError?: string;
   category: ExpenseCategory;
   amount: string;
+  currency: string;
   expenseDate: string;
   storeName: string;
   note: string;
@@ -50,18 +52,21 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
         maxSizeMB: 2,
         maxWidthOrHeight: 2048,
         useWebWorker: true,
+        fileType: "image/webp",
+        initialQuality: 0.85,
       });
     } catch {
-      // fallback to original
+      // fallback to original if compression fails
     }
     const supabase = createClient();
-    const ext = processed.type.split("/")[1] ?? "jpg";
+    const contentType = processed.type || "image/webp";
+    const ext = contentType === "image/webp" ? "webp" : contentType.split("/")[1] ?? "jpg";
     const uuid = crypto.randomUUID();
     const path = `${userId}/${uuid}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("receipts")
       .upload(path, processed, {
-        contentType: processed.type,
+        contentType,
         upsert: false,
       });
     setItems((prev) =>
@@ -94,6 +99,7 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
         uploading: true,
         category: "other",
         amount: "",
+        currency: "THB",
         expenseDate: today(),
         storeName: "",
         note: "",
@@ -121,7 +127,7 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
     });
   }
 
-  function validate(): { ok: true } | { ok: false; index: number; message: string } {
+  function validate(mode: "submit" | "draft"): { ok: true } | { ok: false; index: number; message: string } {
     if (!tripId) return { ok: false, index: -1, message: "เลือกทริปก่อน" };
     if (items.length === 0)
       return { ok: false, index: -1, message: "เพิ่มใบเสร็จอย่างน้อย 1 ใบ" };
@@ -129,16 +135,18 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
       const it = items[i];
       if (it.uploading) return { ok: false, index: i, message: "รออัปโหลดให้เสร็จก่อน" };
       if (!it.receiptPath) return { ok: false, index: i, message: "อัปโหลดใบเสร็จไม่สำเร็จ" };
-      if (!it.amount || Number(it.amount) <= 0)
-        return { ok: false, index: i, message: "กรอกจำนวนเงินที่ถูกต้อง" };
-      if (!it.expenseDate) return { ok: false, index: i, message: "กรอกวันที่" };
-      if (!it.storeName.trim()) return { ok: false, index: i, message: "กรอกร้านค้า/สถานที่" };
+      if (mode === "submit") {
+        if (!it.amount || Number(it.amount) <= 0)
+          return { ok: false, index: i, message: "กรอกจำนวนเงินที่ถูกต้อง" };
+        if (!it.expenseDate) return { ok: false, index: i, message: "กรอกวันที่" };
+        if (!it.storeName.trim()) return { ok: false, index: i, message: "กรอกร้านค้า/สถานที่" };
+      }
     }
     return { ok: true };
   }
 
-  function onSubmit() {
-    const v = validate();
+  function run(mode: "submit" | "draft") {
+    const v = validate(mode);
     if (!v.ok) {
       setError(v.message);
       if (v.index >= 0) {
@@ -151,9 +159,11 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
     startTransition(async () => {
       const result = await submitBatchExpensesAction({
         trip_id: tripId,
+        mode,
         items: items.map((it) => ({
           category: it.category,
-          amount: Number(it.amount),
+          amount: Number(it.amount) || 0,
+          currency: it.currency,
           expense_date: it.expenseDate,
           store_name: it.storeName.trim(),
           note: it.note.trim() || undefined,
@@ -169,7 +179,7 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
         return;
       }
       items.forEach((it) => URL.revokeObjectURL(it.previewUrl));
-      await redirectToHistory();
+      await redirectToHistory(mode === "draft" ? "draft" : undefined);
     });
   }
 
@@ -282,18 +292,28 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
             {error}
           </div>
         )}
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={pending || items.length === 0}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-navy text-sm font-semibold text-white shadow-nav transition-opacity disabled:opacity-50"
-        >
-          {pending
-            ? "กำลังส่ง…"
-            : items.length > 0
-            ? `ส่งเบิก ${items.length} รายการ`
-            : "ส่งเบิกค่าใช้จ่าย"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => run("draft")}
+            disabled={pending || items.length === 0}
+            className="flex h-12 flex-1 items-center justify-center rounded-[12px] border-[1.5px] border-line bg-white text-sm font-semibold text-ink-2 transition-colors hover:bg-surface disabled:opacity-50"
+          >
+            {pending ? "กำลังบันทึก…" : "บันทึก"}
+          </button>
+          <button
+            type="button"
+            onClick={() => run("submit")}
+            disabled={pending || items.length === 0}
+            className="flex h-12 flex-[1.4] items-center justify-center gap-2 rounded-[12px] bg-navy text-sm font-semibold text-white shadow-nav transition-opacity disabled:opacity-50"
+          >
+            {pending
+              ? "กำลังส่ง…"
+              : items.length > 0
+              ? `ส่งเบิก ${items.length} รายการ`
+              : "ส่งเบิกค่าใช้จ่าย"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -367,8 +387,19 @@ function ItemCard({
 
       <div className="mt-3 grid grid-cols-[1.4fr_1fr] gap-2.5">
         <Field label="จำนวนเงิน">
-          <div className="flex items-center gap-1 rounded-[10px] border-[1.4px] border-line bg-white px-3 py-2 focus-within:border-navy">
-            <span className="text-sm text-ink-3">฿</span>
+          <div className="flex items-stretch rounded-[10px] border-[1.4px] border-line bg-white focus-within:border-navy">
+            <select
+              value={item.currency}
+              onChange={(e) => onPatch({ currency: e.target.value })}
+              className="cursor-pointer rounded-l-[8px] border-0 border-r border-line bg-surface px-2 py-2 text-xs font-bold text-ink outline-none"
+              aria-label="สกุลเงิน"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code}
+                </option>
+              ))}
+            </select>
             <input
               inputMode="decimal"
               value={item.amount}
@@ -376,7 +407,7 @@ function ItemCard({
                 onPatch({ amount: e.target.value.replace(/[^0-9.]/g, "") })
               }
               placeholder="0.00"
-              className="w-full border-0 bg-transparent text-base font-semibold text-ink outline-none"
+              className="w-full border-0 bg-transparent px-3 py-2 text-base font-semibold text-ink outline-none"
             />
           </div>
         </Field>

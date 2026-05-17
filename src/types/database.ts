@@ -28,6 +28,7 @@ export type Trip = {
   created_by: string;
   created_at: string;
   updated_at: string;
+  cover_image_path: string | null;
 };
 
 export type TripMember = {
@@ -42,6 +43,9 @@ export type Expense = {
   user_id: string;
   category: ExpenseCategory;
   amount: number;
+  currency: string;
+  exchange_rate: number;
+  amount_thb: number;
   note: string | null;
   receipt_path: string | null;
   status: ExpenseStatus;

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Plus, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Image as ImageIcon } from "lucide-react";
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
 import { listTripsForAdmin } from "@/lib/queries/trips";
 import { thb } from "@/lib/format";
+import { tripCoverUrl } from "@/lib/storage";
 import { NewTripDialog } from "./NewTripDialog";
 
 export default async function AdminTripsPage() {
@@ -56,15 +57,20 @@ export default async function AdminTripsPage() {
                     <input type="checkbox" />
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/trips/${t.id}`}
-                      className="block font-semibold text-ink hover:text-navy-700"
-                    >
-                      {t.title}
-                    </Link>
-                    {t.description && (
-                      <div className="text-xs text-ink-3">{t.description}</div>
-                    )}
+                    <div className="flex items-center gap-3">
+                      <Thumb path={t.cover_image_path} alt={t.title} />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/admin/trips/${t.id}`}
+                          className="block truncate font-semibold text-ink hover:text-navy-700"
+                        >
+                          {t.title}
+                        </Link>
+                        {t.description && (
+                          <div className="truncate text-xs text-ink-3">{t.description}</div>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-ink-2">
                     {t.start_date}
@@ -109,6 +115,25 @@ export default async function AdminTripsPage() {
         </div>
       </div>
     </>
+  );
+}
+
+function Thumb({ path, alt }: { path: string | null; alt: string }) {
+  const url = tripCoverUrl(path);
+  if (!url) {
+    return (
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-navy-50 text-navy-300">
+        <ImageIcon className="size-4" />
+      </div>
+    );
+  }
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={url}
+      alt={alt}
+      className="size-10 shrink-0 rounded-lg border border-line object-cover"
+    />
   );
 }
 

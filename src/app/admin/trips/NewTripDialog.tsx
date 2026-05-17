@@ -2,14 +2,21 @@
 
 import { useActionState, useState } from "react";
 import { Plus, X } from "lucide-react";
+import { CoverImagePicker } from "@/components/admin/CoverImagePicker";
 import { createTripAction, type ActionState } from "./actions";
 
 export function NewTripDialog() {
   const [open, setOpen] = useState(false);
+  const [coverPath, setCoverPath] = useState<string | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     createTripAction,
     undefined
   );
+
+  function reset() {
+    setCoverPath(null);
+    setOpen(false);
+  }
 
   return (
     <>
@@ -25,23 +32,28 @@ export function NewTripDialog() {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/30 p-4"
-          onClick={() => setOpen(false)}
+          onClick={reset}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card"
+            className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-card"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-ink">สร้างทริปใหม่</h2>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={reset}
                 className="text-ink-3 hover:text-ink"
               >
                 <X className="size-5" />
               </button>
             </div>
             <form action={formAction} className="flex flex-col gap-3">
+              <div>
+                <div className="mb-1 text-xs font-semibold text-ink-2">รูปหน้าปก (ไม่บังคับ)</div>
+                <CoverImagePicker value={coverPath} onChange={setCoverPath} />
+                <input type="hidden" name="cover_image_path" value={coverPath ?? ""} />
+              </div>
               <Field name="title" label="ชื่อทริป" placeholder="เช่น ถ่ายงานเชียงใหม่" required />
               <Field name="description" label="รายละเอียด (ไม่บังคับ)" />
               <div className="grid grid-cols-2 gap-3">
@@ -58,7 +70,7 @@ export function NewTripDialog() {
               <div className="mt-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={reset}
                   className="rounded-[10px] border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-2 hover:bg-surface"
                 >
                   ยกเลิก

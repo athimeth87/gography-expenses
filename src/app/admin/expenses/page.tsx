@@ -1,6 +1,7 @@
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
 import { createClient } from "@/lib/supabase/server";
 import { thb } from "@/lib/format";
+import { formatAmount } from "@/lib/currencies";
 import { StatusPill } from "@/components/design/StatusPill";
 import { CatIcon } from "@/components/design/CatIcon";
 import type { Expense, Profile, Trip } from "@/types/database";
@@ -9,11 +10,13 @@ type Row = Expense & { profiles: Pick<Profile, "name"> | null; trips: Pick<Trip,
 
 export default async function AllExpensesPage() {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("expenses")
-    .select("*, profiles(name), trips(title)")
+    .select("*, profiles!user_id(name), trips(title)")
+    .neq("status", "draft")
     .order("created_at", { ascending: false })
     .limit(200);
+  if (error) console.error("AllExpensesPage query error:", error);
   const rows = (data ?? []) as Row[];
 
   return (
@@ -59,8 +62,15 @@ export default async function AllExpensesPage() {
                   <td className="px-4 py-3">
                     <StatusPill status={e.status} size="sm" />
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-sm font-semibold text-ink">
-                    ฿{thb(Number(e.amount))}
+                  <td className="px-4 py-3 text-right">
+                    <div className="font-mono text-sm font-semibold text-ink">
+                      {formatAmount(Number(e.amount), e.currency)}
+                    </div>
+                    {e.currency !== "THB" && (
+                      <div className="font-mono text-[10px] text-ink-3">
+                        ≈ ฿{thb(Number(e.amount_thb))}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

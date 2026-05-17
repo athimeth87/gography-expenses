@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { Check, X, Eye, Download, AlertCircle } from "lucide-react";
+import { Check, X, Eye, Download, AlertCircle, RefreshCw } from "lucide-react";
 import { StatusPill } from "@/components/design/StatusPill";
 import { CATEGORY_TH } from "@/lib/design-tokens";
 import { thb, dateTh } from "@/lib/format";
+import { formatAmount } from "@/lib/currencies";
 import {
   approveExpenseAction,
   rejectExpenseAction,
@@ -32,15 +33,26 @@ export function ApprovalDetail({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approvePending, startApprove] = useTransition();
   const [approveErr, setApproveErr] = useState<string | null>(null);
+  const isThb = expense.currency === "THB";
+  const [rateInput, setRateInput] = useState<string>(
+    isThb ? "1" : String(expense.exchange_rate ?? 1)
+  );
   const [rejectState, rejectAction, rejectPending] = useActionState<ApprovalState, FormData>(
     rejectExpenseAction,
     undefined
   );
 
+  const rate = Number(rateInput) || 0;
+  const computedThb = Number(expense.amount) * rate;
+
   function handleApprove() {
     setApproveErr(null);
+    if (!rate || rate <= 0) {
+      setApproveErr("กรุณากรอกเรทแลกเปลี่ยนที่ถูกต้อง");
+      return;
+    }
     startApprove(async () => {
-      const result = await approveExpenseAction(expense.id);
+      const result = await approveExpenseAction(expense.id, rate);
       if (result?.error) setApproveErr(result.error);
     });
   }
@@ -66,8 +78,13 @@ export function ApprovalDetail({
           </div>
           <div className="shrink-0 text-right">
             <div className="font-mono text-2xl font-bold text-ink">
-              ฿{thb(Number(expense.amount))}
+              {formatAmount(Number(expense.amount), expense.currency)}
             </div>
+            {!isThb && (
+              <div className="mt-0.5 font-mono text-xs text-ink-3">
+                ≈ ฿{thb(computedThb)} <span className="text-ink-4">@ {rate || "?"}</span>
+              </div>
+            )}
             <StatusPill status={expense.status} className="mt-1" />
           </div>
         </div>
@@ -113,12 +130,53 @@ export function ApprovalDetail({
           <div className="space-y-5">
             <Section title="EXPENSE DETAILS">
               <Field label="หมวด" value={CATEGORY_TH[expense.category]} />
-              <Field label="จำนวนเงิน" value={`฿${thb(Number(expense.amount))}`} mono />
+              <Field
+                label="จำนวนเงิน"
+                value={formatAmount(Number(expense.amount), expense.currency)}
+                mono
+              />
               <Field label="วันที่" value={dateTh(expense.expense_date)} />
               <Field label="ร้านค้า" value={storeName ?? "—"} />
               <Field label="ทริป" value={tripTitle ?? "—"} />
               <Field label="ส่งโดย" value={`${submitterName ?? "—"} (${submitterEmail ?? "—"})`} />
               <Field label="หมายเหตุ" value={expense.note ?? "—"} />
+            </Section>
+
+            <Section title="EXCHANGE RATE → THB" icon={<RefreshCw className="size-3.5" />}>
+              <div className="space-y-2.5 px-4 py-3">
+                {isThb ? (
+                  <div className="rounded-lg bg-status-approved-bg px-3 py-2 text-xs text-status-approved-fg">
+                    เป็นเงินบาท (THB) — ไม่ต้องตั้งเรท
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-xs text-ink-3">
+                      กรอกเรท <strong>THB ต่อ 1 {expense.currency}</strong>{" "}
+                      เพื่อคำนวณยอดสุทธิเป็นบาทก่อนอนุมัติ
+                    </div>
+                    <div className="flex items-stretch rounded-[10px] border-[1.4px] border-line bg-white focus-within:border-navy">
+                      <span className="rounded-l-[8px] border-r border-line bg-surface px-3 py-2 text-xs font-bold text-ink-2">
+                        1 {expense.currency} =
+                      </span>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        min="0"
+                        value={rateInput}
+                        onChange={(e) => setRateInput(e.target.value)}
+                        className="w-full border-0 bg-transparent px-3 py-2 text-base font-semibold text-ink outline-none"
+                      />
+                      <span className="rounded-r-[8px] border-l border-line bg-surface px-3 py-2 text-xs font-bold text-ink-2">
+                        THB
+                      </span>
+                    </div>
+                    <div className="font-mono text-xs text-ink-2">
+                      {formatAmount(Number(expense.amount), expense.currency)} × {rate || "?"} ={" "}
+                      <span className="font-bold text-ink">฿{thb(computedThb)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
             </Section>
           </div>
         </div>

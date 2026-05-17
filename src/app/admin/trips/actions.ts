@@ -12,6 +12,7 @@ const tripSchema = z
     description: z.string().max(500).optional(),
     start_date: z.string().min(1),
     end_date: z.string().min(1),
+    cover_image_path: z.string().optional(),
   })
   .refine((d) => d.end_date >= d.start_date, {
     message: "วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่ม",
@@ -30,6 +31,7 @@ export async function createTripAction(
     description: formData.get("description") || undefined,
     start_date: formData.get("start_date"),
     end_date: formData.get("end_date"),
+    cover_image_path: (formData.get("cover_image_path") as string) || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
@@ -46,6 +48,21 @@ export async function createTripAction(
 
   revalidatePath("/admin/trips");
   redirect(`/admin/trips/${trip.id}`);
+}
+
+export async function updateCoverAction(tripId: string, coverPath: string | null) {
+  await requireRole("admin");
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("trips")
+    .update({ cover_image_path: coverPath })
+    .eq("id", tripId);
+  if (error) return { error: error.message };
+  revalidatePath(`/admin/trips/${tripId}`);
+  revalidatePath("/admin/trips");
+  revalidatePath("/dashboard");
+  revalidatePath("/trips");
+  return undefined;
 }
 
 export async function updateAssignmentsAction(tripId: string, photographerIds: string[]) {
