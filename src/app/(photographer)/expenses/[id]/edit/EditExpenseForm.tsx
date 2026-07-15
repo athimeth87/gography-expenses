@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, Trash2 } from "lucide-react";
 import { CategoryPicker } from "@/components/forms/CategoryPicker";
 import { StatusPill } from "@/components/design/StatusPill";
 import { CURRENCIES } from "@/lib/currencies";
@@ -26,6 +26,7 @@ export function EditExpenseForm({ expense, tripTitle, receiptUrl }: Props) {
     expense.amount > 0 ? String(expense.amount) : ""
   );
   const [currency, setCurrency] = useState<string>(expense.currency ?? "THB");
+  const [currencyTo, setCurrencyTo] = useState<string>("THB"); // To — สรุปเข้าบัญชี (ปกติ THB)
   const [expenseDate, setExpenseDate] = useState<string>(expense.expense_date);
   const [storeName, setStoreName] = useState<string>(expense.store_name ?? "");
   const [note, setNote] = useState<string>(expense.note ?? "");
@@ -100,20 +101,11 @@ export function EditExpenseForm({ expense, tripTitle, receiptUrl }: Props) {
         </div>
 
         <div className="grid grid-cols-[1.4fr_1fr] gap-2.5">
-          <Field label="จำนวนเงิน">
+          <Field label="จำนวนที่จ่าย">
             <div className="flex items-stretch rounded-[10px] border-[1.4px] border-line bg-white focus-within:border-navy">
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="cursor-pointer rounded-l-[8px] border-0 border-r border-line bg-surface px-2 py-2 text-xs font-bold text-ink outline-none"
-                aria-label="สกุลเงิน"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code}
-                  </option>
-                ))}
-              </select>
+              <span className="flex items-center rounded-l-[8px] border-0 border-r border-line bg-surface px-3 text-xs font-bold text-ink">
+                {currency}
+              </span>
               <input
                 inputMode="decimal"
                 value={amount}
@@ -132,6 +124,52 @@ export function EditExpenseForm({ expense, tripTitle, receiptUrl }: Props) {
             />
           </Field>
         </div>
+
+        <Field label="สกุลเงินที่แลก (จ่าย → สรุป)">
+          <div className="flex items-center gap-2">
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full cursor-pointer rounded-[10px] border-[1.4px] border-line bg-white px-2.5 py-2 text-sm font-semibold text-ink outline-none focus:border-navy"
+              aria-label="สกุลที่จ่าย (From)"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} · {c.th}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => {
+                const from = currency;
+                setCurrency(currencyTo);
+                setCurrencyTo(from);
+              }}
+              className="flex size-9 shrink-0 items-center justify-center rounded-[10px] border-[1.4px] border-line bg-surface text-navy"
+              aria-label="สลับสกุลเงิน"
+            >
+              <ArrowLeftRight className="size-4" />
+            </button>
+            <select
+              value={currencyTo}
+              onChange={(e) => setCurrencyTo(e.target.value)}
+              className="w-full cursor-pointer rounded-[10px] border-[1.4px] border-line bg-white px-2.5 py-2 text-sm font-semibold text-ink outline-none focus:border-navy"
+              aria-label="สกุลที่สรุป (To)"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} · {c.th}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="mt-1 text-[10px] text-ink-3">
+            {currency !== currencyTo
+              ? `จ่ายจริงเป็น ${currency} · สรุปเข้าบัญชีเป็น ${currencyTo} — ทีมงานใส่เรตแปลงตอนอนุมัติ`
+              : `จ่ายและสรุปเป็นสกุลเดียวกัน (${currency}) — ไม่ต้องแปลง`}
+          </p>
+        </Field>
 
         <Field label="ร้านค้า / สถานที่">
           <input

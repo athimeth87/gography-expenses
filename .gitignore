@@ -47,3 +47,6 @@ public/generated/trip-covers/norway-lofoten.png
 public/generated/trip-covers/norway.png
 public/generated/trip-covers/switzerland-alps.png
 public/generated/trip-covers/vietnam-sapa.png
+
+# supabase CLI temp
+supabase/.temp/

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import {
   ArrowLeft,
+  ArrowLeftRight,
   Camera,
   Upload,
   Plus,
@@ -31,7 +32,8 @@ type Item = {
   uploadError?: string;
   category: ExpenseCategory;
   amount: string;
-  currency: string;
+  currency: string;      // From — สกุลที่จ่ายจริง
+  currencyTo: string;    // To — สกุลที่สรุปเข้าบัญชี (ปกติ THB)
   expenseDate: string;
   storeName: string;
   note: string;
@@ -155,6 +157,7 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
         category: "other",
         amount: "",
         currency: "THB",
+        currencyTo: "THB",
         expenseDate: today(),
         storeName: "",
         note: "",
@@ -468,22 +471,13 @@ function ItemCard({
 
       <div className="mt-3 grid grid-cols-[1.4fr_1fr] gap-2.5">
         <Field
-          label="จำนวนเงิน"
+          label="จำนวนที่จ่าย"
           badge={item.aiFilled?.amount ? <AiTag conf={item.ocrConfidence?.amount} /> : null}
         >
           <div className="flex items-stretch rounded-[10px] border-[1.4px] border-line bg-white focus-within:border-navy">
-            <select
-              value={item.currency}
-              onChange={(e) => onPatch({ currency: e.target.value })}
-              className="cursor-pointer rounded-l-[8px] border-0 border-r border-line bg-surface px-2 py-2 text-xs font-bold text-ink outline-none"
-              aria-label="สกุลเงิน"
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code}
-                </option>
-              ))}
-            </select>
+            <span className="flex items-center rounded-l-[8px] border-0 border-r border-line bg-surface px-3 text-xs font-bold text-ink">
+              {item.currency}
+            </span>
             <input
               inputMode="decimal"
               value={item.amount}
@@ -505,6 +499,52 @@ function ItemCard({
             onChange={(e) => onPatch({ expenseDate: e.target.value })}
             className="w-full rounded-[10px] border-[1.4px] border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy"
           />
+        </Field>
+      </div>
+
+      <div className="mt-2.5">
+        <Field label="สกุลเงินที่แลก (จ่าย → สรุป)">
+          <div className="flex items-center gap-2">
+            <select
+              value={item.currency}
+              onChange={(e) => onPatch({ currency: e.target.value })}
+              className="w-full cursor-pointer rounded-[10px] border-[1.4px] border-line bg-white px-2.5 py-2 text-sm font-semibold text-ink outline-none focus:border-navy"
+              aria-label="สกุลที่จ่าย (From)"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} · {c.th}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() =>
+                onPatch({ currency: item.currencyTo, currencyTo: item.currency })
+              }
+              className="flex size-9 shrink-0 items-center justify-center rounded-[10px] border-[1.4px] border-line bg-surface text-navy"
+              aria-label="สลับสกุลเงิน"
+            >
+              <ArrowLeftRight className="size-4" />
+            </button>
+            <select
+              value={item.currencyTo}
+              onChange={(e) => onPatch({ currencyTo: e.target.value })}
+              className="w-full cursor-pointer rounded-[10px] border-[1.4px] border-line bg-white px-2.5 py-2 text-sm font-semibold text-ink outline-none focus:border-navy"
+              aria-label="สกุลที่สรุป (To)"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} · {c.th}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="mt-1 text-[10px] text-ink-3">
+            {item.currency !== item.currencyTo
+              ? `จ่ายจริงเป็น ${item.currency} · สรุปเข้าบัญชีเป็น ${item.currencyTo} — ทีมงานใส่เรตแปลงตอนอนุมัติ`
+              : `จ่ายและสรุปเป็นสกุลเดียวกัน (${item.currency}) — ไม่ต้องแปลง`}
+          </p>
         </Field>
       </div>
 
