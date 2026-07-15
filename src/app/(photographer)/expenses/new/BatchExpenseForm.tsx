@@ -2,14 +2,25 @@
 
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
-import { ArrowLeft, Camera, Upload, Plus, Trash2, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Camera,
+  Upload,
+  Plus,
+  Trash2,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+} from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { CategoryPicker } from "@/components/forms/CategoryPicker";
 import { CURRENCIES } from "@/lib/currencies";
 import { createClient } from "@/lib/supabase/client";
-import { submitBatchExpensesAction, redirectToHistory } from "./actions";
+import { submitBatchExpensesAction, ocrReceiptAction, redirectToHistory } from "./actions";
 import type { ExpenseCategory } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+type OcrConfidence = { amount: number; date: number; store: number };
 
 type Item = {
   id: string;
@@ -24,6 +35,9 @@ type Item = {
   expenseDate: string;
   storeName: string;
   note: string;
+  ocrStatus?: "scanning" | "done" | "error";
+  ocrConfidence?: OcrConfidence | null;
+  aiFilled?: { amount?: boolean; date?: boolean; store?: boolean };
 };
 
 type Props = {
@@ -80,6 +94,47 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
             }
           : it
       )
+    );
+    if (!upErr) runOcr(itemId, path);
+  }
+
+  // Read the uploaded receipt with AI and prefill ONLY the fields the user
+  // hasn't filled yet. Fails soft — on error the user just types manually.
+  async function runOcr(itemId: string, path: string) {
+    setItems((prev) =>
+      prev.map((it) => (it.id === itemId ? { ...it, ocrStatus: "scanning" } : it))
+    );
+    let res: Awaited<ReturnType<typeof ocrReceiptAction>>;
+    try {
+      res = await ocrReceiptAction(path);
+    } catch {
+      res = { ok: false, error: "AI อ่านใบเสร็จไม่สำเร็จ" };
+    }
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.id !== itemId) return it;
+        if (!res.ok) return { ...it, ocrStatus: "error" };
+        const f = res.fields;
+        const aiFilled = { ...(it.aiFilled ?? {}) };
+        const patch: Partial<Item> = { ocrStatus: "done", ocrConfidence: f.confidence };
+        if (!it.amount && f.amount != null) {
+          patch.amount = String(f.amount);
+          aiFilled.amount = true;
+        }
+        if (it.currency === "THB" && f.currency && f.currency !== "THB") {
+          patch.currency = f.currency;
+        }
+        if (!it.storeName && f.store) {
+          patch.storeName = f.store;
+          aiFilled.store = true;
+        }
+        if ((!it.expenseDate || it.expenseDate === today()) && f.date) {
+          patch.expenseDate = f.date;
+          aiFilled.date = true;
+        }
+        patch.aiFilled = aiFilled;
+        return { ...it, ...patch };
+      })
     );
   }
 
@@ -168,6 +223,7 @@ export function BatchExpenseForm({ userId, trips, initialTripId }: Props) {
           store_name: it.storeName.trim(),
           note: it.note.trim() || undefined,
           receipt_path: it.receiptPath!,
+          ocr_confidence: it.ocrConfidence ?? undefined,
         })),
       });
       if (!result.ok) {
@@ -357,6 +413,14 @@ function ItemCard({
               อัปโหลดไม่สำเร็จ
             </div>
           )}
+          {item.ocrStatus === "scanning" && !item.uploading && (
+            <div className="pointer-events-none absolute inset-0 overflow-hidden bg-navy/10">
+              <div
+                className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-transparent via-navy/50 to-transparent"
+                style={{ animation: "pe-scanline 1.4s ease-in-out infinite" }}
+              />
+            </div>
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between">
@@ -385,8 +449,28 @@ function ItemCard({
         </div>
       </div>
 
+      {item.ocrStatus === "scanning" && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-navy-50 px-3 py-2 text-[11px] font-medium text-navy">
+          <Loader2 className="size-3.5 animate-spin" /> AI กำลังอ่านใบเสร็จ…
+        </div>
+      )}
+      {item.ocrStatus === "done" &&
+        (item.aiFilled?.amount || item.aiFilled?.date || item.aiFilled?.store) && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-status-approved-bg px-3 py-2 text-[11px] font-medium text-status-approved-fg">
+            <Sparkles className="size-3.5" /> AI เติมให้แล้ว — ตรวจสอบก่อนส่ง
+          </div>
+        )}
+      {item.ocrStatus === "error" && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-surface px-3 py-2 text-[11px] text-ink-3">
+          <AlertCircle className="size-3.5" /> AI อ่านใบเสร็จไม่สำเร็จ — กรอกเอง
+        </div>
+      )}
+
       <div className="mt-3 grid grid-cols-[1.4fr_1fr] gap-2.5">
-        <Field label="จำนวนเงิน">
+        <Field
+          label="จำนวนเงิน"
+          badge={item.aiFilled?.amount ? <AiTag conf={item.ocrConfidence?.amount} /> : null}
+        >
           <div className="flex items-stretch rounded-[10px] border-[1.4px] border-line bg-white focus-within:border-navy">
             <select
               value={item.currency}
@@ -411,7 +495,10 @@ function ItemCard({
             />
           </div>
         </Field>
-        <Field label="วันที่">
+        <Field
+          label="วันที่"
+          badge={item.aiFilled?.date ? <AiTag conf={item.ocrConfidence?.date} /> : null}
+        >
           <input
             type="date"
             value={item.expenseDate}
@@ -422,7 +509,10 @@ function ItemCard({
       </div>
 
       <div className="mt-2.5">
-        <Field label="ร้านค้า / สถานที่">
+        <Field
+          label="ร้านค้า / สถานที่"
+          badge={item.aiFilled?.store ? <AiTag conf={item.ocrConfidence?.store} /> : null}
+        >
           <input
             value={item.storeName}
             onChange={(e) => onPatch({ storeName: e.target.value })}
@@ -446,13 +536,41 @@ function ItemCard({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  badge,
+  children,
+}: {
+  label: string;
+  badge?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
+      <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
         {label}
+        {badge}
       </div>
       {children}
     </label>
+  );
+}
+
+function confColor(c?: number): string {
+  if (c == null) return "bg-ink-4";
+  if (c >= 0.8) return "bg-status-approved-fg";
+  if (c >= 0.5) return "bg-status-pending-fg";
+  return "bg-status-rejected-fg";
+}
+
+function AiTag({ conf }: { conf?: number }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full bg-navy-50 px-1.5 py-0.5 text-[9px] font-bold normal-case tracking-normal text-navy"
+      title={conf != null ? `AI · ความมั่นใจ ${Math.round(conf * 100)}%` : "AI"}
+    >
+      <Sparkles className="size-2.5" /> AI
+      {conf != null && <span className={cn("size-1.5 rounded-full", confColor(conf))} />}
+    </span>
   );
 }

@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { extractReceipt, type ReceiptFields, type MediaType } from "@/lib/ocr";
 
 const baseItem = z.object({
   category: z.enum(["fuel", "hotel", "food", "trans", "park", "equip", "other"]),
@@ -14,6 +16,10 @@ const baseItem = z.object({
   store_name: z.string(),
   note: z.string().optional(),
   receipt_path: z.string().min(1, "ต้องอัปโหลดใบเสร็จ"),
+  ocr_confidence: z
+    .object({ amount: z.number(), date: z.number(), store: z.number() })
+    .nullable()
+    .optional(),
 });
 
 // Strict validation for "submit": all fields filled, amount > 0, store/date present.
@@ -74,6 +80,7 @@ export async function submitBatchExpensesAction(
     store_name: item.store_name || null,
     note: item.note || null,
     receipt_path: item.receipt_path,
+    ocr_confidence: item.ocr_confidence ?? null,
     trip_id: parsed.data.trip_id,
     user_id: user.id,
     status,
@@ -90,4 +97,46 @@ export async function submitBatchExpensesAction(
 
 export async function redirectToHistory(filter?: "draft") {
   redirect(filter ? `/history?filter=${filter}` : "/history");
+}
+
+export type OcrActionResult =
+  | { ok: true; fields: ReceiptFields }
+  | { ok: false; error: string };
+
+const OCR_MEDIA: readonly MediaType[] = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+// Reads an already-uploaded receipt from storage and extracts amount/date/store
+// via Claude Haiku 4.5. Fails soft — the caller falls back to manual entry.
+export async function ocrReceiptAction(receiptPath: string): Promise<OcrActionResult> {
+  const user = await requireRole("photographer");
+
+  // Owner check: the storage path is `${user.id}/<uuid>.<ext>`.
+  if (!receiptPath || !receiptPath.startsWith(`${user.id}/`)) {
+    return { ok: false, error: "ไม่พบไฟล์ใบเสร็จ" };
+  }
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return { ok: false, error: "ยังไม่ได้ตั้งค่า AI (ANTHROPIC_API_KEY)" };
+  }
+
+  try {
+    const admin = createAdminClient();
+    const { data: blob, error } = await admin.storage.from("receipts").download(receiptPath);
+    if (error || !blob) return { ok: false, error: "โหลดรูปใบเสร็จไม่สำเร็จ" };
+
+    const buffer = Buffer.from(await blob.arrayBuffer());
+    const media: MediaType = OCR_MEDIA.includes(blob.type as MediaType)
+      ? (blob.type as MediaType)
+      : "image/jpeg";
+
+    const fields = await extractReceipt(buffer.toString("base64"), media);
+    return { ok: true, fields };
+  } catch (e) {
+    console.error("ocrReceiptAction error:", e);
+    return { ok: false, error: "AI อ่านใบเสร็จไม่สำเร็จ" };
+  }
 }

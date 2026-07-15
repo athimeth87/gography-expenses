@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>GoGraphy · มุมช่างภาพ (Photographer view) — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  html,body,#root{margin:0;padding:0}
+  body{font-family:"IBM Plex Sans Thai","IBM Plex Sans",-apple-system,system-ui,sans-serif;background:#EEF1F6;color:#0A2540;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  .pf-topbar{position:sticky;top:0;z-index:100;background:#0A2540;color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 18px rgba(10,37,64,.18)}
+  .pf-topbar .dot{width:34px;height:34px;border-radius:9px;background:#fff;color:#0A2540;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .pf-topbar h1{font-size:16px;font-weight:800;margin:0;letter-spacing:-.01em}
+  .pf-topbar .sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px}
+  .pf-loading{padding:80px;text-align:center;color:#6E7E9A;font-size:14px}
+</style>
+</head>
+<body>
+<div class="pf-topbar">
+  <div class="dot">GG</div>
+  <div>
+    <h1>GoGraphy · มุมช่างภาพ (Photographer view)</h1>
+    <div class="sub">Mobile · iOS · ดีไซน์ต้นฉบับจาก design-extracted — เลื่อนดู 5 หน้า</div>
+  </div>
+</div>
+<div id="root"><div class="pf-loading">กำลังโหลดดีไซน์… (คอมไพล์ JSX ด้วย Babel ในเบราว์เซอร์ ~1–2 วินาที)</div></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+// shared.jsx — design tokens, mock data, shared UI primitives for PhotoExpense
+
+// ─── Design tokens ──────────────────────────────────────────────
+const PE = {
+  // Navy palette
+  navy: '#0A2540',
+  navy900: '#06182C',
+  navy700: '#14304F',
+  navy500: '#2A4A75',
+  navy300: '#7A8FB0',
+  navy100: '#DDE5F0',
+  navy50:  '#F3F6FB',
+  // Surface
+  white:   '#FFFFFF',
+  surface: '#F7F9FC',
+  border:  '#E5EAF2',
+  borderS: '#EFF2F7',
+  // Text
+  ink:    '#0A2540',
+  ink2:   '#3E5172',
+  ink3:   '#6E7E9A',
+  ink4:   '#94A2BB',
+  // Status
+  green:    '#0F9D58',
+  greenBg:  '#E6F4EA',
+  amber:    '#B7791F',
+  amberBg:  '#FEF3C7',
+  red:      '#C5363A',
+  redBg:    '#FBE9EA',
+  blue:     '#1D4ED8',
+  blueBg:   '#DBEAFE',
+  gray:     '#5B6B85',
+  grayBg:   '#EEF1F6',
+  // Type
+  font: '"IBM Plex Sans Thai", "IBM Plex Sans", -apple-system, system-ui, sans-serif',
+  mono: '"IBM Plex Mono", ui-monospace, monospace',
+};
+window.PE = PE;
+
+// ─── Mock data ──────────────────────────────────────────────────
+const CATEGORIES = [
+  { key: 'fuel',  label: 'Fuel',           th: 'น้ำมัน',       icon: 'fuel' },
+  { key: 'hotel', label: 'Hotel',          th: 'ที่พัก',        icon: 'hotel' },
+  { key: 'food',  label: 'Food',           th: 'อาหาร',        icon: 'food' },
+  { key: 'trans', label: 'Transportation', th: 'การเดินทาง',   icon: 'trans' },
+  { key: 'park',  label: 'Parking',        th: 'ที่จอดรถ',     icon: 'park' },
+  { key: 'equip', label: 'Equipment',      th: 'อุปกรณ์',      icon: 'equip' },
+  { key: 'other', label: 'Other',          th: 'อื่น ๆ',       icon: 'other' },
+];
+window.CATEGORIES = CATEGORIES;
+
+const STATUS = {
+  draft:    { label: 'Draft',    th: 'ร่าง',          color: PE.gray,  bg: PE.grayBg },
+  pending:  { label: 'Pending',  th: 'รออนุมัติ',     color: PE.amber, bg: PE.amberBg },
+  approved: { label: 'Approved', th: 'อนุมัติแล้ว',  color: PE.green, bg: PE.greenBg },
+  rejected: { label: 'Rejected', th: 'ถูกปฏิเสธ',     color: PE.red,   bg: PE.redBg },
+  paid:     { label: 'Paid',     th: 'จ่ายแล้ว',     color: PE.blue,  bg: PE.blueBg },
+};
+window.STATUS = STATUS;
+
+const TRIPS = [
+  { id: 'T1', title: 'ถ่ายงานเชียงใหม่ Winter Series', client: 'AYANA Studio',
+    start: '12 พ.ย. 2025', end: '18 พ.ย. 2025', status: 'active',
+    members: ['เอก', 'พีท', 'เฟิร์น'], totalExpense: 48230, claims: 14, location: 'Chiang Mai' },
+  { id: 'T2', title: 'รีวิวโรงแรม Sindhorn Midtown', client: 'Sindhorn Midtown',
+    start: '05 ม.ค. 2026', end: '07 ม.ค. 2026', status: 'active',
+    members: ['เอก', 'มิ้น'], totalExpense: 12400, claims: 6, location: 'Bangkok' },
+  { id: 'T3', title: 'งานแต่งงาน คุณภัทร & คุณนิ', client: 'Patarayada Wedding',
+    start: '14 ก.พ. 2026', end: '14 ก.พ. 2026', status: 'active',
+    members: ['เอก', 'พีท'], totalExpense: 7820, claims: 4, location: 'Hua Hin' },
+  { id: 'T4', title: 'Campaign · Sukhumvit Lookbook S/S26', client: 'Vela Apparel',
+    start: '01 มี.ค. 2026', end: '03 มี.ค. 2026', status: 'closed',
+    members: ['เฟิร์น', 'มิ้น'], totalExpense: 26900, claims: 11, location: 'Bangkok' },
+];
+window.TRIPS = TRIPS;
+
+// Expense records used across photographer + admin views.
+const EXPENSES = [
+  { id: 'E1041', trip: 'T1', user: 'เอก',   cat: 'fuel',  amount: 1820,  date: '12 พ.ย. 2025',
+    note: 'เติม Caltex ทางขึ้นเชียงใหม่',     status: 'approved', store: 'Caltex แม่ริม' },
+  { id: 'E1042', trip: 'T1', user: 'เอก',   cat: 'hotel', amount: 4200,  date: '12 พ.ย. 2025',
+    note: 'พักคืนแรก 2 ห้อง',                 status: 'approved', store: 'Khum Phaya Resort' },
+  { id: 'E1043', trip: 'T1', user: 'เอก',   cat: 'food',  amount: 680,   date: '13 พ.ย. 2025',
+    note: 'อาหารเช้าทีมงาน',                  status: 'pending',  store: 'SP Chicken' },
+  { id: 'E1044', trip: 'T1', user: 'เฟิร์น', cat: 'equip', amount: 2300,  date: '13 พ.ย. 2025',
+    note: 'ค่าเช่าเลนส์ 70-200 1 วัน',         status: 'pending',  store: 'Big Camera CM' },
+  { id: 'E1045', trip: 'T1', user: 'พีท',   cat: 'trans', amount: 450,   date: '14 พ.ย. 2025',
+    note: 'แท็กซี่ขึ้นดอยสุเทพ',              status: 'pending',  store: 'Bolt' },
+  { id: 'E1046', trip: 'T1', user: 'เอก',   cat: 'food',  amount: 1240,  date: '14 พ.ย. 2025',
+    note: 'มื้อค่ำพร้อมลูกค้า',               status: 'pending',  store: 'Tong Tem Toh' },
+  { id: 'E1047', trip: 'T1', user: 'เฟิร์น', cat: 'park',  amount: 80,    date: '14 พ.ย. 2025',
+    note: 'จอดที่ One Nimman',                status: 'rejected', store: 'One Nimman',
+    adminNote: 'ขอใบเสร็จที่ชัดเจนกว่านี้' },
+  { id: 'E1048', trip: 'T2', user: 'มิ้น',  cat: 'trans', amount: 320,   date: '05 ม.ค. 2026',
+    note: 'Grab ไป-กลับ Sindhorn',            status: 'approved', store: 'Grab' },
+  { id: 'E1049', trip: 'T2', user: 'เอก',   cat: 'food',  amount: 540,   date: '06 ม.ค. 2026',
+    note: 'มื้อกลางวัน',                       status: 'pending',  store: 'Sindhorn Kempinski' },
+  { id: 'E1050', trip: 'T3', user: 'พีท',   cat: 'fuel',  amount: 1450,  date: '14 ก.พ. 2026',
+    note: 'น้ำมันไปหัวหิน',                   status: 'pending',  store: 'PT Cha-am' },
+  { id: 'E1051', trip: 'T3', user: 'เอก',   cat: 'equip', amount: 3800,  date: '13 ก.พ. 2026',
+    note: 'แบตเตอรี่กล้องสำรอง 3 ก้อน',       status: 'pending',  store: 'Zoom Camera' },
+  { id: 'E1052', trip: 'T4', user: 'เฟิร์น', cat: 'food',  amount: 920,   date: '02 มี.ค. 2026',
+    note: 'มื้อเที่ยงทีม + นางแบบ',           status: 'paid',     store: 'Roast Em Quartier' },
+];
+window.EXPENSES = EXPENSES;
+
+// ─── Reusable visual primitives ─────────────────────────────────
+
+function StatusPill({ status, size = 'md' }) {
+  const s = STATUS[status] || STATUS.draft;
+  const pad = size === 'sm' ? '3px 8px' : '5px 10px';
+  const fs  = size === 'sm' ? 11 : 12;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: pad, borderRadius: 999, fontSize: fs, fontWeight: 600,
+      color: s.color, background: s.bg, lineHeight: 1, letterSpacing: 0.1,
+      fontFamily: PE.font,
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: 999, background: s.color }} />
+      {s.label}
+    </span>
+  );
+}
+
+// Monoline category icon — 20×20 stroke.
+function CatIcon({ cat, size = 20, color = PE.navy }) {
+  const sw = 1.6;
+  const p = { stroke: color, strokeWidth: sw, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const map = {
+    fuel: <>
+      <rect x="4" y="4" width="9" height="16" rx="1.5" {...p}/>
+      <path d="M4 9h9" {...p}/>
+      <path d="M13 8l3 2v7a2 2 0 0 0 2 2v-9l-3-3" {...p}/>
+    </>,
+    hotel: <>
+      <path d="M3 19V8l9-4 9 4v11" {...p}/>
+      <path d="M3 19h18" {...p}/>
+      <rect x="8" y="12" width="3" height="3" {...p}/>
+      <rect x="13" y="12" width="3" height="3" {...p}/>
+    </>,
+    food: <>
+      <path d="M6 4v6c0 1.5 1 2 2 2v8" {...p}/>
+      <path d="M10 4v6c0 1.5-1 2-2 2" {...p}/>
+      <path d="M17 4c-2 0-3 2-3 5s1 4 3 4v7" {...p}/>
+    </>,
+    trans: <>
+      <rect x="4" y="6" width="16" height="11" rx="2" {...p}/>
+      <path d="M4 13h16" {...p}/>
+      <circle cx="8" cy="17.5" r="1.4" {...p}/>
+      <circle cx="16" cy="17.5" r="1.4" {...p}/>
+    </>,
+    park: <>
+      <rect x="4" y="4" width="16" height="16" rx="3" {...p}/>
+      <path d="M9 17V8h4a3 3 0 0 1 0 6h-4" {...p}/>
+    </>,
+    equip: <>
+      <rect x="3" y="7" width="18" height="12" rx="2" {...p}/>
+      <path d="M8 7l1.5-2h5L16 7" {...p}/>
+      <circle cx="12" cy="13" r="3.2" {...p}/>
+    </>,
+    other: <>
+      <circle cx="12" cy="12" r="8" {...p}/>
+      <circle cx="8.5" cy="11" r="0.6" fill={color} stroke="none"/>
+      <circle cx="15.5" cy="11" r="0.6" fill={color} stroke="none"/>
+      <circle cx="12" cy="11" r="0.6" fill={color} stroke="none"/>
+    </>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>{map[cat] || map.other}</svg>;
+}
+
+// Generic monoline icon.
+function Icon({ name, size = 18, color = 'currentColor', strokeWidth = 1.7 }) {
+  const p = { stroke: color, strokeWidth, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const paths = {
+    home: <><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z" {...p}/></>,
+    grid: <><rect x="4" y="4" width="7" height="7" rx="1.2" {...p}/><rect x="13" y="4" width="7" height="7" rx="1.2" {...p}/><rect x="4" y="13" width="7" height="7" rx="1.2" {...p}/><rect x="13" y="13" width="7" height="7" rx="1.2" {...p}/></>,
+    plus: <><path d="M12 5v14M5 12h14" {...p}/></>,
+    check: <><path d="M5 12l4.5 4.5L19 7" {...p}/></>,
+    x: <><path d="M6 6l12 12M18 6L6 18" {...p}/></>,
+    chevron: <><path d="M9 6l6 6-6 6" {...p}/></>,
+    arrow_left: <><path d="M15 6l-6 6 6 6" {...p}/></>,
+    arrow_right: <><path d="M9 6l6 6-6 6" {...p}/></>,
+    arrow_up: <><path d="M6 15l6-6 6 6" {...p}/></>,
+    bell: <><path d="M6 16V11a6 6 0 0 1 12 0v5l1 2H5z" {...p}/><path d="M10 21h4" {...p}/></>,
+    search: <><circle cx="11" cy="11" r="6" {...p}/><path d="M20 20l-4.5-4.5" {...p}/></>,
+    camera: <><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" {...p}/><circle cx="12" cy="13" r="3.5" {...p}/></>,
+    upload: <><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" {...p}/><path d="M12 4v12M7 9l5-5 5 5" {...p}/></>,
+    user: <><circle cx="12" cy="8" r="4" {...p}/><path d="M4 21c1-4.5 4-6.5 8-6.5s7 2 8 6.5" {...p}/></>,
+    users: <><circle cx="9" cy="8" r="3.5" {...p}/><path d="M3 20c.7-3.5 3-5 6-5s5.3 1.5 6 5" {...p}/><path d="M15 5.5a3.5 3.5 0 0 1 0 7" {...p}/><path d="M17.5 20c.4-3 2-4.4 4-4.7" {...p}/></>,
+    receipt: <><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z" {...p}/><path d="M9 8h6M9 12h6M9 16h4" {...p}/></>,
+    calendar: <><rect x="4" y="6" width="16" height="14" rx="2" {...p}/><path d="M4 10h16M9 3v4M15 3v4" {...p}/></>,
+    money: <><rect x="3" y="6" width="18" height="12" rx="2" {...p}/><circle cx="12" cy="12" r="2.5" {...p}/><path d="M6 12h.01M18 12h.01" {...p}/></>,
+    chart: <><path d="M4 20V8M10 20V4M16 20v-8M22 20H2" {...p}/></>,
+    pie: <><path d="M12 4a8 8 0 1 0 8 8h-8z" {...p}/></>,
+    folder: <><path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" {...p}/></>,
+    location: <><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z" {...p}/><circle cx="12" cy="9.5" r="2.5" {...p}/></>,
+    filter: <><path d="M4 5h16l-6 8v6l-4-2v-4z" {...p}/></>,
+    download: <><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" {...p}/><path d="M12 4v12M7 11l5 5 5-5" {...p}/></>,
+    more: <><circle cx="6" cy="12" r="1.3" fill={color} stroke="none"/><circle cx="12" cy="12" r="1.3" fill={color} stroke="none"/><circle cx="18" cy="12" r="1.3" fill={color} stroke="none"/></>,
+    settings: <><circle cx="12" cy="12" r="3" {...p}/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" {...p}/></>,
+    logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" {...p}/><path d="M16 17l5-5-5-5M21 12H9" {...p}/></>,
+    sparkle: <><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" {...p}/><path d="M19 17l.7 1.6L21 19l-1.3.4L19 21l-.7-1.6L17 19l1.3-.4z" {...p}/></>,
+    note: <><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" {...p}/><path d="M14 3v6h6" {...p}/></>,
+    eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" {...p}/><circle cx="12" cy="12" r="3" {...p}/></>,
+    crop: <><path d="M6 2v16h16" {...p}/><path d="M2 6h16v16" {...p}/></>,
+    image: <><rect x="3" y="4" width="18" height="16" rx="2" {...p}/><circle cx="9" cy="10" r="1.6" {...p}/><path d="M21 17l-5-5-9 9" {...p}/></>,
+    refresh: <><path d="M20 11a8 8 0 0 0-14.5-3M4 13a8 8 0 0 0 14.5 3" {...p}/><path d="M20 4v4h-4M4 20v-4h4" {...p}/></>,
+    clock: <><circle cx="12" cy="12" r="8" {...p}/><path d="M12 7v5l3 2" {...p}/></>,
+    inbox: <><path d="M3 13l3-7h12l3 7v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" {...p}/><path d="M3 13h5l1 3h6l1-3h5" {...p}/></>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>{paths[name] || null}</svg>;
+}
+
+// Brand mark — a navy diamond "lens aperture" mark
+function Logo({ size = 28, color = PE.navy, white = false }) {
+  const c = white ? '#fff' : color;
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" style={{ flexShrink: 0 }}>
+      <rect x="2" y="2" width="28" height="28" rx="7" fill={c}/>
+      <g stroke={white ? PE.navy : '#fff'} strokeWidth="1.6" fill="none" strokeLinecap="round">
+        <circle cx="16" cy="16" r="7"/>
+        <path d="M16 9 L21.5 14 L19.5 21 L12.5 21 L10.5 14 Z"/>
+      </g>
+    </svg>
+  );
+}
+
+// THB amount formatter
+function thb(n) {
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+
+// Faux receipt — used in upload previews & expense detail
+function FauxReceipt({ width = 220, scale = 1, ocrHighlight = null }) {
+  // ocrHighlight: { date, amount, store }
+  const lines = [
+    { kind: 'h', txt: 'KHUM PHAYA RESORT' },
+    { kind: 'h', txt: 'CHIANG MAI · TH' },
+    { kind: 'b' },
+    { kind: 'kv', k: 'Date',    v: '12/11/2025',           hl: 'date'   },
+    { kind: 'kv', k: 'Time',    v: '14:32'                              },
+    { kind: 'kv', k: 'Receipt', v: '#A-0044-2025'                       },
+    { kind: 'b' },
+    { kind: 'kv', k: 'Deluxe Room ×2', v: '3,800.00' },
+    { kind: 'kv', k: 'Breakfast',       v: '320.00' },
+    { kind: 'kv', k: 'Service 10%',     v: '80.00' },
+    { kind: 'b' },
+    { kind: 'kv', k: 'TOTAL',   v: '฿ 4,200.00', bold: true, hl: 'amount' },
+    { kind: 'kv', k: 'Paid',    v: 'Credit Card' },
+    { kind: 'b' },
+    { kind: 'h', txt: 'ขอบคุณค่ะ · Thank you' },
+  ];
+  return (
+    <div style={{
+      width, transform: `scale(${scale})`, transformOrigin: 'top left',
+      background: '#FBFAF6', color: '#3A3328',
+      border: '1px solid #E9E4D6', borderRadius: 6,
+      padding: '16px 14px',
+      fontFamily: PE.mono, fontSize: 9.5, lineHeight: 1.55,
+      boxShadow: '0 10px 24px rgba(10,37,64,.08), 0 1px 0 rgba(0,0,0,.04)',
+      position: 'relative',
+    }}>
+      {/* torn top + bottom edges */}
+      <div style={{ position: 'absolute', top: -6, left: 0, right: 0, height: 6,
+        background: 'radial-gradient(circle at 6px 6px, transparent 5px, #FBFAF6 5.5px) 0 0/12px 12px' }}/>
+      <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 6,
+        background: 'radial-gradient(circle at 6px 0px, transparent 5px, #FBFAF6 5.5px) 0 0/12px 12px' }}/>
+      {lines.map((l, i) => {
+        if (l.kind === 'b') return <div key={i} style={{ borderTop: '1px dashed #C9BFA6', margin: '6px 0' }} />;
+        if (l.kind === 'h') return <div key={i} style={{ textAlign: 'center', fontWeight: 600, letterSpacing: 0.8 }}>{l.txt}</div>;
+        const isHl = ocrHighlight && l.hl === ocrHighlight;
+        return (
+          <div key={i} style={{
+            display: 'flex', justifyContent: 'space-between',
+            background: isHl ? 'rgba(217,119,6,0.22)' : 'transparent',
+            outline: isHl ? '1.5px solid #B7791F' : 'none',
+            borderRadius: 3, padding: isHl ? '1px 3px' : 0, margin: isHl ? '0 -3px' : 0,
+            fontWeight: l.bold ? 700 : 400,
+            transition: 'background .2s, outline .2s',
+          }}>
+            <span>{l.k}</span><span>{l.v}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+Object.assign(window, { PE, CATEGORIES, STATUS, TRIPS, EXPENSES, StatusPill, CatIcon, Icon, Logo, thb, FauxReceipt });
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// mobile-photographer.jsx — Photographer-facing iOS screens for PhotoExpense
+// Exports (to window): PhotographerLogin, PhotographerDashboard, PhotographerTripDetail,
+// PhotographerAddExpense, PhotographerClaimHistory
+
+const { useState, useEffect, useRef } = React;
+
+// ─── Mobile shell helpers ───────────────────────────────────────
+function MobileStatusBar({ dark = false }) {
+  const c = dark ? '#fff' : PE.navy;
+  return (
+    <div style={{
+      height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 22px', fontFamily: PE.font, color: c, fontSize: 14, fontWeight: 600,
+      flexShrink: 0,
+    }}>
+      <span>9:41</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <svg width="17" height="11" viewBox="0 0 17 11"><g fill={c}>
+          <rect x="0" y="7" width="3" height="4" rx="0.5"/>
+          <rect x="4.5" y="5" width="3" height="6" rx="0.5"/>
+          <rect x="9" y="2.5" width="3" height="8.5" rx="0.5"/>
+          <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
+        </g></svg>
+        <svg width="15" height="11" viewBox="0 0 15 11" fill={c}>
+          <path d="M7.5 3a6.5 6.5 0 0 1 4.6 1.9l1-1A8 8 0 0 0 7.5 1.5 8 8 0 0 0 1.4 3.9l1 1A6.5 6.5 0 0 1 7.5 3z"/>
+          <circle cx="7.5" cy="9" r="1.2"/>
+        </svg>
+        <svg width="24" height="12" viewBox="0 0 24 12">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke={c} strokeOpacity=".4" fill="none"/>
+          <rect x="2" y="2" width="18" height="8" rx="1.5" fill={c}/>
+          <rect x="22" y="4" width="1.5" height="4" rx="0.5" fill={c} fillOpacity=".5"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function MobileFrame({ children, dark = false, bg }) {
+  return (
+    <div style={{
+      width: 390, height: 844, borderRadius: 44, overflow: 'hidden',
+      background: bg || (dark ? PE.navy : '#fff'),
+      boxShadow: '0 24px 60px rgba(10,37,64,0.18), 0 0 0 1px rgba(10,37,64,.08)',
+      position: 'relative', display: 'flex', flexDirection: 'column',
+      fontFamily: PE.font, color: PE.ink,
+    }}>
+      {/* Dynamic island */}
+      <div style={{
+        position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+        width: 110, height: 32, borderRadius: 18, background: '#000', zIndex: 50,
+      }}/>
+      <MobileStatusBar dark={dark}/>
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {children}
+      </div>
+      {/* Home indicator */}
+      <div style={{
+        position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+        width: 134, height: 5, borderRadius: 100,
+        background: dark ? 'rgba(255,255,255,.7)' : 'rgba(10,37,64,.4)', zIndex: 60,
+      }}/>
+    </div>
+  );
+}
+
+function MobileTabBar({ active = 'home' }) {
+  const tabs = [
+    { key: 'home',    label: 'หน้าหลัก',  icon: 'home' },
+    { key: 'trips',   label: 'ทริป',     icon: 'folder' },
+    { key: 'add',     label: 'เพิ่ม',     icon: 'plus' },
+    { key: 'history', label: 'ประวัติ',   icon: 'receipt' },
+    { key: 'me',      label: 'ฉัน',      icon: 'user' },
+  ];
+  return (
+    <div style={{
+      borderTop: `1px solid ${PE.border}`, background: '#fff',
+      padding: '8px 10px 26px', display: 'flex', gap: 4, justifyContent: 'space-around',
+      flexShrink: 0,
+    }}>
+      {tabs.map(t => {
+        const isActive = t.key === active;
+        const isCenter = t.key === 'add';
+        if (isCenter) return (
+          <div key={t.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 14, background: PE.navy,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 18px rgba(10,37,64,.28)',
+            }}><Icon name="plus" size={22} color="#fff" strokeWidth={2.2}/></div>
+          </div>
+        );
+        return (
+          <div key={t.key} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1,
+            color: isActive ? PE.navy : PE.ink4,
+          }}>
+            <Icon name={t.icon} size={22} color={isActive ? PE.navy : PE.ink4} strokeWidth={isActive ? 2 : 1.6}/>
+            <span style={{ fontSize: 10.5, fontWeight: isActive ? 600 : 500 }}>{t.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+window.MobileFrame = MobileFrame;
+window.MobileTabBar = MobileTabBar;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// mobile-photographer.jsx — Photographer mobile screens for PhotoExpense
+
+const { useState: useStateMP, useEffect: useEffectMP, useRef: useRefMP, useMemo: useMemoMP } = React;
+
+// ─── 1. Login ───────────────────────────────────────────────────
+function PhotographerLogin() {
+  const [email, setEmail] = useStateMP('eak@photoexpense.co');
+  const [pw, setPw]     = useStateMP('••••••••');
+  const [focus, setFocus] = useStateMP(null);
+  return (
+    <MobileFrame bg="#fff">
+      <div style={{ flex: 1, padding: '24px 28px 12px', display: 'flex', flexDirection: 'column' }}>
+        {/* Brand + decorative arc */}
+        <div style={{ position: 'relative', marginTop: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Logo size={40}/>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: PE.navy, letterSpacing: -0.3 }}>PhotoExpense</div>
+              <div style={{ fontSize: 12, color: PE.ink3, marginTop: 1 }}>Crew expense claims · v1.0</div>
+            </div>
+          </div>
+          <div style={{
+            position: 'absolute', right: -30, top: -10, width: 140, height: 140, borderRadius: '50%',
+            border: `1.2px solid ${PE.navy100}`, pointerEvents: 'none',
+          }}/>
+        </div>
+
+        <div style={{ marginTop: 60 }}>
+          <div style={{ fontSize: 30, fontWeight: 700, color: PE.navy, letterSpacing: -0.6, lineHeight: 1.15 }}>
+            ยินดีต้อนรับ<br/>
+            <span style={{ color: PE.ink3, fontWeight: 600 }}>กลับมา</span>
+          </div>
+          <div style={{ fontSize: 14, color: PE.ink2, marginTop: 10, lineHeight: 1.5 }}>
+            ลงชื่อเข้าใช้เพื่อดูทริปและส่งเบิกค่าใช้จ่าย
+          </div>
+        </div>
+
+        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {[
+            { k: 'email', label: 'Email', val: email, set: setEmail, type: 'email' },
+            { k: 'pw',    label: 'Password', val: pw, set: setPw, type: 'password' },
+          ].map(f => (
+            <label key={f.k} style={{
+              display: 'block', borderRadius: 12,
+              padding: '10px 14px',
+              background: '#fff', border: `1.4px solid ${focus === f.k ? PE.navy : PE.border}`,
+              transition: 'border-color .2s',
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: PE.ink3, letterSpacing: 0.6, textTransform: 'uppercase' }}>{f.label}</div>
+              <input
+                type="text"
+                value={f.val}
+                onChange={e => f.set(e.target.value)}
+                onFocus={() => setFocus(f.k)}
+                onBlur={() => setFocus(null)}
+                style={{
+                  width: '100%', border: 0, outline: 'none', background: 'transparent',
+                  fontFamily: PE.font, fontSize: 16, color: PE.ink, padding: '2px 0 4px',
+                }}
+              />
+            </label>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: PE.ink2 }}>
+            <span style={{
+              width: 18, height: 18, borderRadius: 5, background: PE.navy,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            }}><Icon name="check" size={12} color="#fff" strokeWidth={2.4}/></span>
+            จดจำการเข้าสู่ระบบ
+          </label>
+          <a style={{ fontSize: 13, color: PE.navy, fontWeight: 600 }}>ลืมรหัสผ่าน?</a>
+        </div>
+
+        <button style={{
+          marginTop: 24, height: 54, borderRadius: 14, background: PE.navy, color: '#fff',
+          border: 0, fontFamily: PE.font, fontSize: 16, fontWeight: 600, letterSpacing: 0.2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          boxShadow: '0 10px 22px rgba(10,37,64,.22)',
+        }}>
+          เข้าสู่ระบบ <Icon name="arrow_right" size={18} color="#fff" strokeWidth={2}/>
+        </button>
+
+        <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ flex: 1, height: 1, background: PE.border }}/>
+          <span style={{ fontSize: 11, color: PE.ink4, letterSpacing: 0.6 }}>OR CONTINUE WITH</span>
+          <div style={{ flex: 1, height: 1, background: PE.border }}/>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+          {['Google', 'LINE', 'Apple'].map(p => (
+            <div key={p} style={{
+              flex: 1, height: 46, borderRadius: 12, border: `1.4px solid ${PE.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 600, color: PE.ink,
+            }}>{p}</div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 'auto', textAlign: 'center', fontSize: 13, color: PE.ink3, paddingTop: 24 }}>
+          ยังไม่มีบัญชี? <span style={{ color: PE.navy, fontWeight: 600 }}>ติดต่อแอดมิน</span>
+        </div>
+      </div>
+    </MobileFrame>
+  );
+}
+window.PhotographerLogin = PhotographerLogin;
+
+// ─── 2. Dashboard ───────────────────────────────────────────────
+function PhotographerDashboard() {
+  const myTrips = TRIPS.slice(0, 3);
+  const stats = [
+    { k: 'pending',  label: 'รออนุมัติ',     val: 6,    sub: '฿ 5,180', color: PE.amber, bg: PE.amberBg },
+    { k: 'approved', label: 'อนุมัติแล้ว',   val: 12,   sub: '฿ 18,640', color: PE.green, bg: PE.greenBg },
+    { k: 'rejected', label: 'ถูกปฏิเสธ',     val: 2,    sub: '฿ 320',   color: PE.red,   bg: PE.redBg },
+  ];
+  return (
+    <MobileFrame>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {/* Header */}
+        <div style={{ padding: '4px 20px 16px', background: PE.navy, color: '#fff',
+          borderBottomLeftRadius: 26, borderBottomRightRadius: 26 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, color: '#fff', fontSize: 15, letterSpacing: 0.4,
+              }}>เอ</div>
+              <div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)' }}>สวัสดี</div>
+                <div style={{ fontSize: 16, fontWeight: 600 }}>คุณเอกชัย ฤทธิรงค์</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
+              }}>
+                <Icon name="bell" size={20} color="#fff"/>
+                <div style={{
+                  position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%',
+                  background: '#FF6B6B', border: '2px solid ' + PE.navy,
+                }}/>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary card */}
+          <div style={{
+            marginTop: 18, padding: 18, borderRadius: 18,
+            background: 'linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.04))',
+            border: '1px solid rgba(255,255,255,.14)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                  Total claimed · this month
+                </div>
+                <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -0.5, marginTop: 6, lineHeight: 1 }}>
+                  ฿ 24,140
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Icon name="arrow_up" size={12} color="#A4E1B7" strokeWidth={2.4}/>
+                  <span style={{ color: '#A4E1B7', fontWeight: 600 }}>+12.4%</span> vs last month
+                </div>
+              </div>
+              {/* tiny sparkline */}
+              <svg width="92" height="46" viewBox="0 0 92 46">
+                <polyline fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="1.6"
+                  points="2,32 14,24 26,28 38,18 50,22 62,12 74,16 88,6"/>
+                <polyline fill="rgba(255,255,255,.12)" stroke="none"
+                  points="2,32 14,24 26,28 38,18 50,22 62,12 74,16 88,6 88,44 2,44"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Stat row */}
+        <div style={{ display: 'flex', gap: 10, padding: '14px 16px 8px' }}>
+          {stats.map(s => (
+            <div key={s.k} style={{
+              flex: 1, padding: 12, borderRadius: 14, background: '#fff',
+              border: `1px solid ${PE.borderS}`,
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8, background: s.bg, color: s.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8,
+              }}>
+                <Icon name={s.k === 'pending' ? 'clock' : s.k === 'approved' ? 'check' : 'x'} size={16} color={s.color} strokeWidth={2.2}/>
+              </div>
+              <div style={{ fontSize: 11, color: PE.ink3, fontWeight: 500 }}>{s.label}</div>
+              <div style={{ fontSize: 19, fontWeight: 700, color: PE.ink, marginTop: 2 }}>{s.val}</div>
+              <div style={{ fontSize: 11, color: PE.ink3, marginTop: 2 }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Trips section */}
+        <div style={{ padding: '8px 20px 4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: PE.ink, letterSpacing: -0.2 }}>ทริปของฉัน</div>
+            <div style={{ fontSize: 12, color: PE.ink3 }}>3 ทริปที่กำลังดำเนินอยู่</div>
+          </div>
+          <span style={{ fontSize: 13, color: PE.navy, fontWeight: 600 }}>ดูทั้งหมด</span>
+        </div>
+
+        <div style={{ padding: '8px 16px 8px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {myTrips.map((t, i) => (
+            <div key={t.id} style={{
+              padding: 14, borderRadius: 16, background: '#fff',
+              border: `1px solid ${PE.borderS}`,
+              display: 'flex', gap: 14, alignItems: 'center',
+            }}>
+              {/* Stripe accent */}
+              <div style={{
+                width: 48, height: 56, borderRadius: 12,
+                background: i === 0 ? PE.navy : PE.navy50,
+                color: i === 0 ? '#fff' : PE.navy,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                position: 'relative', flexShrink: 0,
+              }}>
+                <div style={{ fontSize: 9, fontWeight: 600, opacity: .8, letterSpacing: 0.5 }}>
+                  {t.start.split(' ')[1]?.toUpperCase()}
+                </div>
+                <div style={{ fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{t.start.split(' ')[0]}</div>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: PE.ink, lineHeight: 1.3,
+                  overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box',
+                  WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>{t.title}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, color: PE.ink3, fontSize: 11 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                    <Icon name="location" size={11} color={PE.ink3}/> {t.location}
+                  </span>
+                  <span style={{ width: 3, height: 3, borderRadius: '50%', background: PE.ink4 }}/>
+                  <span>{t.claims} claims</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                  <div style={{ flex: 1, height: 4, borderRadius: 2, background: PE.borderS, overflow: 'hidden' }}>
+                    <div style={{ width: `${[70, 45, 25][i]}%`, height: '100%', background: PE.navy, borderRadius: 2 }}/>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: PE.ink2 }}>฿ {thb(t.totalExpense)}</span>
+                </div>
+              </div>
+              <Icon name="chevron" size={16} color={PE.ink4}/>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent claims */}
+        <div style={{ padding: '14px 20px 4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: PE.ink, letterSpacing: -0.2 }}>เบิกล่าสุด</div>
+          <span style={{ fontSize: 13, color: PE.navy, fontWeight: 600 }}>ทั้งหมด</span>
+        </div>
+
+        <div style={{ padding: '4px 20px 16px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {EXPENSES.filter(e => e.user === 'เอก').slice(0, 4).map(e => {
+            const cat = CATEGORIES.find(c => c.key === e.cat);
+            return (
+              <div key={e.id} style={{
+                padding: '12px 0', display: 'flex', alignItems: 'center', gap: 12,
+                borderBottom: `1px solid ${PE.borderS}`,
+              }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, background: PE.navy50,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}><CatIcon cat={e.cat} color={PE.navy} size={20}/></div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: PE.ink, lineHeight: 1.3 }}>{cat.th}</div>
+                  <div style={{ fontSize: 11, color: PE.ink3, marginTop: 2 }}>{e.store} · {e.date}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: PE.ink, fontVariantNumeric: 'tabular-nums' }}>฿{thb(e.amount)}</div>
+                  <div style={{ marginTop: 4 }}><StatusPill status={e.status} size="sm"/></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ height: 8 }}/>
+      </div>
+      <MobileTabBar active="home"/>
+    </MobileFrame>
+  );
+}
+window.PhotographerDashboard = PhotographerDashboard;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+// mobile-photographer-2.jsx — Trip Detail, Add Expense (OCR), Claim History
+
+const { useState: useStateMP2, useEffect: useEffectMP2, useRef: useRefMP2 } = React;
+
+// ─── 3. Trip Detail ─────────────────────────────────────────────
+function PhotographerTripDetail() {
+  const trip = TRIPS[0];
+  const exps = EXPENSES.filter(e => e.trip === trip.id);
+  const groups = {};
+  exps.forEach(e => { (groups[e.date] = groups[e.date] || []).push(e); });
+
+  return (
+    <MobileFrame>
+      <div style={{ flex: 1, overflow: 'auto', background: PE.surface }}>
+        {/* Header */}
+        <div style={{
+          background: PE.navy, color: '#fff', padding: '6px 20px 20px',
+          borderBottomLeftRadius: 24, borderBottomRightRadius: 24, position: 'relative',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}><Icon name="arrow_left" size={20} color="#fff"/></div>
+            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.4, opacity: .8 }}>TRIP · T1</div>
+            <div style={{
+              width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}><Icon name="more" size={20} color="#fff"/></div>
+          </div>
+
+          <div style={{ marginTop: 18, fontSize: 22, fontWeight: 700, lineHeight: 1.25, letterSpacing: -0.3 }}>
+            {trip.title}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,.75)' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Icon name="calendar" size={12} color="rgba(255,255,255,.75)"/> {trip.start} – {trip.end}
+            </span>
+            <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,.4)' }}/>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Icon name="location" size={12} color="rgba(255,255,255,.75)"/> {trip.location}
+            </span>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
+            {[
+              { l: 'รวม',       v: '฿ ' + thb(trip.totalExpense) },
+              { l: 'อนุมัติแล้ว', v: '฿ 18,460', c: '#A4E1B7' },
+              { l: 'รออนุมัติ',  v: '฿ 4,670',   c: '#F6D274' },
+            ].map((s, i) => (
+              <div key={i} style={{ flex: 1, padding: 10, borderRadius: 12, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)' }}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.65)', letterSpacing: 0.5, textTransform: 'uppercase' }}>{s.l}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginTop: 2, color: s.c || '#fff' }}>{s.v}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Members avatars */}
+          <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex' }}>
+              {trip.members.map((m, i) => (
+                <div key={i} style={{
+                  width: 28, height: 28, borderRadius: '50%', background: ['#3b5b88', '#5276a8', '#7494c0'][i],
+                  border: '2px solid ' + PE.navy, marginLeft: i ? -8 : 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 600,
+                }}>{m[0]}</div>
+              ))}
+            </div>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,.7)' }}>{trip.members.join(' · ')}</span>
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <div style={{ padding: '14px 16px 6px', display: 'flex', gap: 8, overflow: 'auto' }}>
+          {[
+            { l: 'ทั้งหมด', a: true, c: exps.length },
+            { l: 'รออนุมัติ', c: exps.filter(e => e.status === 'pending').length },
+            { l: 'อนุมัติแล้ว', c: exps.filter(e => e.status === 'approved').length },
+            { l: 'ปฏิเสธ', c: exps.filter(e => e.status === 'rejected').length },
+          ].map((f, i) => (
+            <div key={i} style={{
+              padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+              background: f.a ? PE.navy : '#fff',
+              color: f.a ? '#fff' : PE.ink2,
+              border: f.a ? 'none' : `1px solid ${PE.border}`,
+              display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
+            }}>
+              {f.l}
+              <span style={{
+                background: f.a ? 'rgba(255,255,255,.18)' : PE.navy50, padding: '1px 7px',
+                borderRadius: 999, fontSize: 11, color: f.a ? '#fff' : PE.navy,
+              }}>{f.c}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Expense list grouped by date */}
+        {Object.entries(groups).map(([date, items]) => (
+          <div key={date} style={{ padding: '10px 16px 0' }}>
+            <div style={{
+              fontSize: 11, fontWeight: 600, color: PE.ink3, letterSpacing: 0.6,
+              textTransform: 'uppercase', padding: '6px 4px', display: 'flex',
+              justifyContent: 'space-between', alignItems: 'baseline',
+            }}>
+              <span>{date}</span>
+              <span style={{ color: PE.ink2 }}>฿ {thb(items.reduce((s, e) => s + e.amount, 0))}</span>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${PE.borderS}`, overflow: 'hidden' }}>
+              {items.map((e, idx) => {
+                const cat = CATEGORIES.find(c => c.key === e.cat);
+                return (
+                  <div key={e.id} style={{
+                    padding: '12px 14px', display: 'flex', gap: 12, alignItems: 'center',
+                    borderTop: idx ? `1px solid ${PE.borderS}` : 'none',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10, background: PE.navy50,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}><CatIcon cat={e.cat} color={PE.navy} size={20}/></div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: PE.ink }}>{cat.th}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: PE.ink, fontVariantNumeric: 'tabular-nums' }}>฿{thb(e.amount)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+                        <span style={{ fontSize: 11, color: PE.ink3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
+                          {e.store}
+                        </span>
+                        <StatusPill status={e.status} size="sm"/>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <div style={{ height: 90 }}/>
+      </div>
+
+      {/* Floating Add button */}
+      <div style={{ position: 'absolute', bottom: 100, right: 20, zIndex: 30 }}>
+        <div style={{
+          padding: '14px 20px', borderRadius: 16, background: PE.navy, color: '#fff',
+          display: 'flex', alignItems: 'center', gap: 10,
+          boxShadow: '0 14px 28px rgba(10,37,64,.32)',
+          fontSize: 14, fontWeight: 600,
+        }}>
+          <Icon name="plus" size={18} color="#fff" strokeWidth={2.4}/>
+          เพิ่มค่าใช้จ่าย
+        </div>
+      </div>
+      <MobileTabBar active="trips"/>
+    </MobileFrame>
+  );
+}
+window.PhotographerTripDetail = PhotographerTripDetail;
+
+// ─── 4. Add Expense + OCR animation ─────────────────────────────
+function PhotographerAddExpense() {
+  // Step machine: 0 = empty form, 1 = receipt picked, 2 = OCR scanning, 3 = OCR done (highlights), 4 = filled form
+  const [step, setStep] = useStateMP2(0);
+  const [highlight, setHighlight] = useStateMP2(null); // 'date', 'amount', 'store'
+
+  useEffectMP2(() => {
+    let timers = [];
+    if (step === 2) {
+      // Scanning animation
+      timers.push(setTimeout(() => setStep(3), 1800));
+    }
+    if (step === 3) {
+      // Highlight fields sequentially
+      timers.push(setTimeout(() => setHighlight('date'), 200));
+      timers.push(setTimeout(() => setHighlight('amount'), 900));
+      timers.push(setTimeout(() => setHighlight('store'), 1500));
+      timers.push(setTimeout(() => { setStep(4); setHighlight(null); }, 2300));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [step]);
+
+  // Auto-loop: 0 → 1 → 2 → 3 → 4 → 0 every ~7s, demonstrating the OCR flow.
+  useEffectMP2(() => {
+    if (step === 0) {
+      const t = setTimeout(() => setStep(1), 1500);
+      return () => clearTimeout(t);
+    }
+    if (step === 1) {
+      const t = setTimeout(() => setStep(2), 1200);
+      return () => clearTimeout(t);
+    }
+    if (step === 4) {
+      const t = setTimeout(() => setStep(0), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
+  const filled = step >= 4;
+  const cat = filled ? 'hotel' : null;
+  const amount = filled ? '4200.00' : '';
+  const date = filled ? '12 พ.ย. 2025' : '';
+  const store = filled ? 'Khum Phaya Resort' : '';
+
+  return (
+    <MobileFrame>
+      <div style={{ flex: 1, overflow: 'auto', background: PE.surface }}>
+        {/* Header */}
+        <div style={{
+          background: '#fff', padding: '6px 16px 12px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', borderBottom: `1px solid ${PE.borderS}`,
+        }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 12, background: PE.navy50,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}><Icon name="arrow_left" size={20} color={PE.navy}/></div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: PE.ink }}>เพิ่มค่าใช้จ่าย</div>
+          <div style={{ fontSize: 13, color: PE.ink3, fontWeight: 600 }}>บันทึก</div>
+        </div>
+
+        {/* Step pill */}
+        <div style={{ padding: '12px 16px 4px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            padding: '6px 12px', borderRadius: 999, background: PE.navy50,
+            fontSize: 11, fontWeight: 600, color: PE.navy, letterSpacing: 0.4, textTransform: 'uppercase',
+          }}>
+            <Icon name="sparkle" size={14} color={PE.navy}/>
+            {step === 0 && 'อัปโหลดใบเสร็จเพื่อกรอกอัตโนมัติ'}
+            {step === 1 && 'รับไฟล์แล้ว · เริ่มสแกน'}
+            {step === 2 && 'AI กำลังอ่านใบเสร็จ…'}
+            {step === 3 && 'ดึงข้อมูลเสร็จ · แตะดูรายละเอียด'}
+            {step === 4 && 'กรอกข้อมูลให้แล้ว · ตรวจสอบ'}
+          </div>
+        </div>
+
+        {/* Receipt zone */}
+        <div style={{ padding: '14px 16px 6px' }}>
+          <div style={{
+            position: 'relative', borderRadius: 16, overflow: 'hidden',
+            background: '#fff', border: `1.6px ${step === 0 ? 'dashed' : 'solid'} ${PE.navy100}`,
+            minHeight: 200, padding: 16,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {step === 0 ? (
+              <div style={{ textAlign: 'center', padding: 12 }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16, background: PE.navy50, margin: '0 auto',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name="camera" size={28} color={PE.navy} strokeWidth={1.7}/>
+                </div>
+                <div style={{ marginTop: 12, fontSize: 14, fontWeight: 600, color: PE.ink }}>ถ่ายรูป หรือเลือกใบเสร็จ</div>
+                <div style={{ marginTop: 4, fontSize: 12, color: PE.ink3 }}>JPG · PNG · WEBP สูงสุด 10MB</div>
+                <div style={{ marginTop: 14, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                  <div style={{ padding: '8px 14px', borderRadius: 10, background: PE.navy, color: '#fff', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <Icon name="camera" size={14} color="#fff"/> ถ่ายรูป
+                  </div>
+                  <div style={{ padding: '8px 14px', borderRadius: 10, background: PE.navy50, color: PE.navy, fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <Icon name="upload" size={14} color={PE.navy}/> อัปโหลด
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                <FauxReceipt width={210} scale={1} ocrHighlight={step === 3 ? highlight : null}/>
+                {/* Scanning overlay */}
+                {step === 2 && (
+                  <>
+                    <div style={{
+                      position: 'absolute', inset: 0, borderRadius: 8,
+                      background: 'linear-gradient(180deg, rgba(10,37,64,.05), transparent)',
+                      animation: 'pe-scan 1.8s linear infinite',
+                    }}/>
+                    <div style={{
+                      position: 'absolute', left: '10%', right: '10%', top: 0, height: 2,
+                      background: `linear-gradient(90deg, transparent, ${PE.navy}, transparent)`,
+                      boxShadow: `0 0 20px ${PE.navy}`,
+                      animation: 'pe-scanline 1.8s ease-in-out infinite',
+                    }}/>
+                  </>
+                )}
+                {step >= 2 && (
+                  <div style={{
+                    position: 'absolute', top: 10, right: 10, display: 'inline-flex',
+                    alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 999,
+                    background: step >= 3 ? PE.greenBg : PE.navy, color: step >= 3 ? PE.green : '#fff',
+                    fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4,
+                  }}>
+                    <Icon name="sparkle" size={11} color={step >= 3 ? PE.green : '#fff'}/>
+                    {step === 2 ? 'AI SCANNING' : 'AI READ ✓'}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Form */}
+        <div style={{ padding: '8px 16px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Category */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: PE.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '4px 4px 8px' }}>หมวด · Category</div>
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+              {CATEGORIES.map(c => {
+                const active = cat === c.key;
+                const suggested = step >= 3 && c.key === 'hotel';
+                return (
+                  <div key={c.key} style={{
+                    padding: '8px 12px', borderRadius: 999, background: active ? PE.navy : '#fff',
+                    border: `1px solid ${active ? PE.navy : suggested ? PE.navy : PE.border}`,
+                    color: active ? '#fff' : PE.ink2, fontSize: 12, fontWeight: 600,
+                    display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
+                    transition: 'all .2s',
+                  }}>
+                    <CatIcon cat={c.key} size={14} color={active ? '#fff' : PE.navy}/>
+                    {c.th}
+                    {suggested && !active && <Icon name="sparkle" size={11} color={PE.navy}/>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Amount + date */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <FormField label="จำนวนเงิน · Amount" sub="THB" highlight={highlight === 'amount'} flex={1.4}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontSize: 18, color: PE.ink3, fontWeight: 500 }}>฿</span>
+                <span style={{ fontSize: 26, fontWeight: 700, color: PE.ink, letterSpacing: -0.4 }}>
+                  {amount || <span style={{ color: PE.ink4 }}>0.00</span>}
+                </span>
+              </div>
+            </FormField>
+            <FormField label="วันที่ · Date" highlight={highlight === 'date'} flex={1}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0' }}>
+                <Icon name="calendar" size={14} color={PE.ink2}/>
+                <span style={{ fontSize: 13, color: date ? PE.ink : PE.ink4, fontWeight: 500 }}>
+                  {date || 'เลือกวันที่'}
+                </span>
+              </div>
+            </FormField>
+          </div>
+
+          {/* Store */}
+          <FormField label="ร้านค้า · Store" highlight={highlight === 'store'}>
+            <div style={{ padding: '4px 0', fontSize: 14, color: store ? PE.ink : PE.ink4, fontWeight: 500 }}>
+              {store || 'ระบุชื่อร้าน'}
+            </div>
+          </FormField>
+
+          {/* Trip */}
+          <FormField label="ทริป · Trip">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, background: PE.navy, color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>T1</div>
+              <span style={{ fontSize: 14, color: PE.ink, fontWeight: 500 }}>ถ่ายงานเชียงใหม่ Winter Series</span>
+            </div>
+          </FormField>
+
+          {/* Note */}
+          <FormField label="หมายเหตุ · Note">
+            <div style={{ padding: '4px 0 8px', minHeight: 36, fontSize: 13, color: PE.ink3, lineHeight: 1.5 }}>
+              {filled ? 'พักคืนแรก 2 ห้อง · มี breakfast รวม' : 'เพิ่มรายละเอียด…'}
+            </div>
+          </FormField>
+        </div>
+
+        {/* Submit */}
+        <div style={{ padding: '4px 16px 14px' }}>
+          <button style={{
+            width: '100%', height: 52, borderRadius: 14, background: PE.navy, color: '#fff',
+            border: 0, fontFamily: PE.font, fontSize: 15, fontWeight: 600,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            boxShadow: '0 10px 22px rgba(10,37,64,.22)',
+            opacity: filled ? 1 : 0.65, transition: 'opacity .3s',
+          }}>
+            ส่งเบิกค่าใช้จ่าย <Icon name="arrow_right" size={16} color="#fff"/>
+          </button>
+        </div>
+      </div>
+      {/* Keyframes */}
+      <style>{`
+        @keyframes pe-scanline {
+          0% { top: 8%; opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { top: 92%; opacity: 0; }
+        }
+        @keyframes pe-scan {
+          0%,100% { background-position: 0 0; }
+          50% { background-position: 0 100%; }
+        }
+      `}</style>
+    </MobileFrame>
+  );
+}
+
+function FormField({ label, sub, highlight, flex, children }) {
+  return (
+    <div style={{
+      flex, padding: '10px 14px', borderRadius: 12,
+      background: '#fff', border: `1.4px solid ${highlight ? PE.navy : PE.border}`,
+      transition: 'border-color .25s, box-shadow .25s',
+      boxShadow: highlight ? `0 0 0 4px ${PE.navy50}` : 'none',
+      position: 'relative',
+    }}>
+      {highlight && (
+        <div style={{ position: 'absolute', top: -8, right: 10,
+          background: PE.navy, color: '#fff', borderRadius: 6, padding: '2px 6px',
+          fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4,
+          display: 'inline-flex', alignItems: 'center', gap: 3,
+        }}>
+          <Icon name="sparkle" size={10} color="#fff"/> AI FILLED
+        </div>
+      )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div style={{ fontSize: 10.5, fontWeight: 600, color: PE.ink3, letterSpacing: 0.6, textTransform: 'uppercase' }}>{label}</div>
+        {sub && <div style={{ fontSize: 10, color: PE.ink4, fontWeight: 600 }}>{sub}</div>}
+      </div>
+      {children}
+    </div>
+  );
+}
+window.PhotographerAddExpense = PhotographerAddExpense;
+
+// ─── 5. Claim History ───────────────────────────────────────────
+function PhotographerClaimHistory() {
+  const items = EXPENSES.slice(0, 9);
+  return (
+    <MobileFrame>
+      <div style={{ flex: 1, overflow: 'auto', background: PE.surface }}>
+        {/* Header */}
+        <div style={{ padding: '6px 20px 8px', background: '#fff', borderBottom: `1px solid ${PE.borderS}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: PE.ink, letterSpacing: -0.4 }}>ประวัติการเบิก</div>
+            <div style={{
+              width: 38, height: 38, borderRadius: 12, background: PE.navy50,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}><Icon name="filter" size={18} color={PE.navy}/></div>
+          </div>
+          {/* Search */}
+          <div style={{
+            marginTop: 12, height: 44, borderRadius: 12, background: PE.navy50,
+            display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px',
+          }}>
+            <Icon name="search" size={18} color={PE.ink3}/>
+            <span style={{ fontSize: 14, color: PE.ink4 }}>ค้นหารายการเบิก…</span>
+          </div>
+        </div>
+
+        {/* Summary strip */}
+        <div style={{ padding: 16, display: 'flex', gap: 8 }}>
+          {[
+            { l: 'รวมทั้งหมด', v: '฿ 26,180', c: PE.navy },
+            { l: 'จ่ายแล้ว',  v: '฿ 18,640', c: PE.green },
+            { l: 'ค้าง',     v: '฿ 7,540',  c: PE.amber },
+          ].map((s, i) => (
+            <div key={i} style={{ flex: 1 }}>
+              <div style={{ fontSize: 10.5, color: PE.ink3, letterSpacing: 0.4, textTransform: 'uppercase', fontWeight: 600 }}>{s.l}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: s.c, marginTop: 2, letterSpacing: -0.3 }}>{s.v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Status segmented */}
+        <div style={{ padding: '0 16px', display: 'flex', gap: 8 }}>
+          {['ทั้งหมด', 'รออนุมัติ', 'อนุมัติแล้ว', 'ถูกปฏิเสธ', 'จ่ายแล้ว'].map((l, i) => (
+            <div key={i} style={{
+              padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+              background: i === 0 ? PE.navy : '#fff',
+              color: i === 0 ? '#fff' : PE.ink2,
+              border: i === 0 ? 'none' : `1px solid ${PE.border}`,
+              whiteSpace: 'nowrap',
+            }}>{l}</div>
+          ))}
+        </div>
+
+        {/* History list with thumbnails */}
+        <div style={{ padding: '16px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {items.map(e => {
+            const cat = CATEGORIES.find(c => c.key === e.cat);
+            const trip = TRIPS.find(t => t.id === e.trip);
+            return (
+              <div key={e.id} style={{
+                padding: 14, background: '#fff', borderRadius: 14,
+                border: `1px solid ${PE.borderS}`, display: 'flex', gap: 12,
+              }}>
+                {/* Receipt thumb */}
+                <div style={{
+                  width: 56, height: 70, borderRadius: 8, background: '#FBFAF6',
+                  border: `1px solid ${PE.border}`, padding: 6, flexShrink: 0,
+                  display: 'flex', flexDirection: 'column', gap: 2,
+                  fontFamily: PE.mono, fontSize: 5.5, color: '#8a7a55', overflow: 'hidden',
+                }}>
+                  <div style={{ height: 4, background: '#d6cbb0', width: '70%' }}/>
+                  <div style={{ height: 2, background: '#d6cbb0', width: '50%' }}/>
+                  <div style={{ height: 1, background: '#e4dac1' }}/>
+                  <div style={{ height: 2, background: '#d6cbb0', width: '80%' }}/>
+                  <div style={{ height: 2, background: '#d6cbb0', width: '60%' }}/>
+                  <div style={{ height: 1, background: '#e4dac1' }}/>
+                  <div style={{ height: 3, background: PE.navy, width: '40%', marginTop: 'auto' }}/>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: PE.ink, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <CatIcon cat={e.cat} size={14} color={PE.navy}/> {cat.th}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: PE.ink, fontVariantNumeric: 'tabular-nums' }}>฿{thb(e.amount)}</div>
+                  </div>
+                  <div style={{ fontSize: 11, color: PE.ink3, marginTop: 3 }}>{e.store}</div>
+                  <div style={{ fontSize: 10.5, color: PE.ink4, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {trip.title} · {e.date}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 7 }}>
+                    <StatusPill status={e.status} size="sm"/>
+                    {e.adminNote && (
+                      <span style={{ fontSize: 10.5, color: PE.red, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <Icon name="note" size={11} color={PE.red}/> เหตุผล
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <MobileTabBar active="history"/>
+    </MobileFrame>
+  );
+}
+window.PhotographerClaimHistory = PhotographerClaimHistory;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+
+const PF_SCREENS = [
+  ["01 · เข้าสู่ระบบ · Login", PhotographerLogin],
+  ["02 · หน้าหลัก · Dashboard", PhotographerDashboard],
+  ["03 · รายละเอียดทริป · Trip Detail", PhotographerTripDetail],
+  ["04 · เพิ่มค่าใช้จ่าย + OCR · Add Expense", PhotographerAddExpense],
+  ["05 · ประวัติการเบิก · Claim History", PhotographerClaimHistory],
+];
+function PhotographerCanvas(){
+  return (
+    <div style={{display:"flex",flexWrap:"wrap",gap:"56px 48px",justifyContent:"center",alignItems:"flex-start",padding:"28px 24px 90px"}}>
+      {PF_SCREENS.map(([label, Comp]) => (
+        <div key={label} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
+          <div style={{fontFamily:"IBM Plex Mono, ui-monospace, monospace",fontSize:12,fontWeight:600,color:"#6E7E9A",letterSpacing:0.3,whiteSpace:"nowrap"}}>{label}</div>
+          <Comp/>
+        </div>
+      ))}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<PhotographerCanvas/>);
+
+</script>
+</body>
+</html>

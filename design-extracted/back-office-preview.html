@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GoGraphy · หลังบ้าน (Back Office) — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+
+:root{
+  --navy:#0A2540;--navy-50:#F3F6FB;--navy-100:#DDE5F0;--navy-300:#7A8FB0;--navy-500:#2A4A75;--navy-700:#14304F;--navy-900:#06182C;
+  --surface:#F7F9FC;--line:#E5EAF2;--line-soft:#EFF2F7;
+  --ink:#0A2540;--ink2:#3E5172;--ink3:#6E7E9A;--ink4:#94A2BB;
+  --pend-fg:#B7791F;--pend-bg:#FEF3C7;--appr-fg:#0F9D58;--appr-bg:#E6F4EA;--rej-fg:#C5363A;--rej-bg:#FBE9EA;--paid-fg:#1D4ED8;--paid-bg:#DBEAFE;--draft-fg:#5B6B85;--draft-bg:#EEF1F6;
+  --shadow-card:0 10px 24px rgba(10,37,64,.08);--shadow-nav:0 10px 22px rgba(10,37,64,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--surface);color:var(--ink);font-family:'IBM Plex Sans Thai','IBM Plex Sans',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-size:14px}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;flex-shrink:0;background:var(--navy);color:#fff;display:flex;flex-direction:column;gap:4px;padding:20px 14px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 16px}
+.brand-logo{width:32px;height:32px;border-radius:9px;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800}
+.brand-name{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.55)}
+.nav-group{padding:14px 14px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.45)}
+.nav-item{display:flex;align-items:center;gap:12px;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:500;color:rgba(255,255,255,.7);cursor:pointer;border:0;background:transparent;width:100%;text-align:left;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08)}
+.nav-item.active{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:-14px;top:8px;bottom:8px;width:3px;border-radius:2px;background:#fff}
+.nav-item .ico{width:18px;height:18px;flex-shrink:0}
+.nav-item .lbl{flex:1;min-width:0}
+.nav-item .lbl .en{display:block}
+.nav-item .lbl .th{display:block;font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
+.nav-item .badge{background:#fff;color:var(--navy);border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.screen{display:none;flex-direction:column;flex:1;min-height:0}
+.screen.active{display:flex}
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);background:#fff;padding:20px 28px 16px}
+.tb-sub{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3)}
+.tb-title{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+.tb-actions{display:flex;align-items:center;gap:10px}
+.searchbox{display:flex;align-items:center;gap:8px;height:38px;width:260px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 12px;color:var(--ink4);font-size:13px}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.body{flex:1;overflow-y:auto;padding:24px 28px}
+/* Layout helpers */
+.row{display:flex;gap:16px}.stack{display:flex;flex-direction:column}
+.grid-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.mt6{margin-top:24px}.mt4{margin-top:16px}.mt3{margin-top:12px}.mt2{margin-top:8px}
+/* Card */
+.card{border:1px solid var(--line);background:#fff;border-radius:16px;box-shadow:var(--shadow-card)}
+.card-pad{padding:20px}
+.seclabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.link{font-size:12px;font-weight:600;color:var(--navy);cursor:pointer}
+/* KPI */
+.kpi{border:1px solid var(--line);background:#fff;border-radius:16px;box-shadow:var(--shadow-card);padding:20px}
+.kpi-top{display:flex;align-items:center;justify-content:space-between}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3)}
+.kpi-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.kpi-ico svg{width:16px;height:16px}
+.kpi-ico.navy{background:var(--navy-50);color:var(--navy)}
+.kpi-ico.pending{background:var(--pend-bg);color:var(--pend-fg)}
+.kpi-ico.approved{background:var(--appr-bg);color:var(--appr-fg)}
+.kpi-ico.rejected{background:var(--rej-bg);color:var(--rej-fg)}
+.kpi-ico.paid{background:var(--paid-bg);color:var(--paid-fg)}
+.kpi-val{font-size:26px;font-weight:800;margin-top:12px}
+.kpi-sub{font-size:13px;color:var(--ink3);margin-top:4px}
+/* Table */
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table thead th{background:var(--surface);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);text-align:left;padding:12px 16px}
+.table thead th.r{text-align:right}
+.table tbody td{padding:12px 16px;border-top:1px solid var(--line);vertical-align:middle}
+.table tbody td.r{text-align:right}
+.table tbody tr.click{cursor:pointer}
+.table tbody tr.click:hover{background:var(--navy-50)}
+.cellmain{display:flex;align-items:center;gap:10px}
+.cat{width:36px;height:36px;border-radius:10px;background:var(--navy-50);color:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cat svg{width:20px;height:20px}
+.t-strong{font-size:14px;font-weight:600;color:var(--ink)}
+.t-sub{font-size:11px;color:var(--ink3)}
+.muted{color:var(--ink3);font-size:12px}
+.muted2{color:var(--ink2);font-size:13px}
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.pill .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
+.pill--pending{background:var(--pend-bg);color:var(--pend-fg)}
+.pill--approved{background:var(--appr-bg);color:var(--appr-fg)}
+.pill--rejected{background:var(--rej-bg);color:var(--rej-fg)}
+.pill--paid{background:var(--paid-bg);color:var(--paid-fg)}
+.pill--draft{background:var(--draft-bg);color:var(--draft-fg)}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid transparent;background:#fff;color:var(--ink2)}
+.btn svg{width:16px;height:16px}
+.btn--navy{background:var(--navy);color:#fff;box-shadow:var(--shadow-card)}
+.btn--ghost{border-color:var(--line);background:#fff;color:var(--ink2)}
+.btn--danger{border-color:rgba(197,54,58,.4);color:var(--rej-fg);background:#fff}
+.btn--sm{padding:6px 12px;font-size:12px;border-radius:9px}
+.btn--block{width:100%;justify-content:center}
+/* Inputs */
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:12px;font-weight:600;color:var(--ink2)}
+.field-hint{font-size:11px;color:var(--ink3)}
+.input,.select{height:40px;border:1.4px solid var(--line);background:#fff;border-radius:10px;padding:0 12px;font-size:14px;color:var(--ink);width:100%;font-family:inherit}
+.input:focus,.select:focus{outline:none;border-color:var(--navy)}
+textarea.input{height:auto;padding:10px 12px;resize:vertical}
+.inputgroup{display:flex;align-items:stretch;border:1.4px solid var(--line);border-radius:10px;overflow:hidden}
+.inputgroup .addon{background:var(--surface);color:var(--ink2);font-size:12px;font-weight:700;display:flex;align-items:center;padding:0 12px;border-right:1px solid var(--line)}
+.inputgroup input{border:0;outline:none;padding:0 12px;font-size:14px;width:100%;font-family:inherit}
+/* Toggle */
+.toggle{width:42px;height:24px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .15s}
+.toggle.on{background:var(--appr-fg)}
+.toggle.on::after{left:20px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.setting-row:last-child{border-bottom:0}
+.setting-row .meta .name{font-size:14px;font-weight:600;color:var(--ink)}
+.setting-row .meta .desc{font-size:12px;color:var(--ink3);margin-top:2px}
+/* Detail field rows */
+.frow{display:flex;gap:12px;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--line-soft)}
+.frow:last-child{border-bottom:0}
+.frow-k{width:120px;flex-shrink:0;font-size:12px;color:var(--ink3)}
+.frow-v{flex:1;min-width:0;font-size:14px;color:var(--ink)}
+.frow-v.mono{font-family:'IBM Plex Mono',monospace;font-weight:700}
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 28px;background:#fff}
+.tab{padding:12px 14px;font-size:13px;font-weight:600;color:var(--ink3);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+/* Avatar / role */
+.avatar{width:32px;height:32px;border-radius:999px;background:var(--navy-100);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.role-badge{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.role-badge.admin{background:var(--navy);color:#fff}
+.role-badge.photographer{background:var(--navy-50);color:var(--navy)}
+.role-badge.disabled{background:var(--draft-bg);color:var(--draft-fg)}
+/* Misc */
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--ink2);font-weight:500}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.bar{height:6px;border-radius:999px;background:var(--line-soft);overflow:hidden;margin-top:6px}
+.bar > span{display:block;height:100%;background:var(--navy)}
+.checkbox{width:18px;height:18px;border:1.5px solid var(--line);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.checkbox.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.checkbox svg{width:12px;height:12px}
+.filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.empty{padding:48px;text-align:center;color:var(--ink3);font-size:14px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--navy);color:#fff;border-radius:12px}
+.amt{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px}
+.amt-lg{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:24px}
+.audit{position:relative;padding-left:22px}
+.audit::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.audit-item{position:relative;padding:8px 0}
+.audit-item::before{content:'';position:absolute;left:-19px;top:12px;width:10px;height:10px;border-radius:999px;background:#fff;border:2px solid var(--navy-300)}
+.audit-item.done::before{background:var(--appr-fg);border-color:var(--appr-fg)}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand"><div class="brand-logo">GG</div><div><div class="brand-name">GoGraphy</div><div class="brand-sub">Admin Workspace</div></div></div>
+<div class="nav-group">Manage</div>
+<div class="nav-item"><i class="ico" data-lucide="layout-grid"></i><span class="lbl"><span class="en">Dashboard</span><span class="th">ภาพรวม</span></span></div>
+<div class="nav-item"><i class="ico" data-lucide="folder"></i><span class="lbl"><span class="en">Trips</span><span class="th">ทริปทั้งหมด</span></span></div>
+<div class="nav-item"><i class="ico" data-lucide="inbox"></i><span class="lbl"><span class="en">Approval Queue</span><span class="th">อนุมัติเบิก</span></span><span class="badge">5</span></div>
+<div class="nav-item"><i class="ico" data-lucide="bar-chart-3"></i><span class="lbl"><span class="en">Reports</span><span class="th">รายงาน</span></span></div>
+<div class="nav-group">หลังบ้าน · NEW</div>
+<button class="nav-item" data-target="screen-expenses"><i class="ico" data-lucide="receipt"></i><span class="lbl"><span class="en">All Expenses</span><span class="th">รายการทั้งหมด</span></span></button>
+<button class="nav-item" data-target="screen-payouts"><i class="ico" data-lucide="banknote"></i><span class="lbl"><span class="en">Payouts</span><span class="th">การจ่ายเงิน</span></span></button>
+<button class="nav-item" data-target="screen-members"><i class="ico" data-lucide="users"></i><span class="lbl"><span class="en">Members</span><span class="th">สมาชิก & สิทธิ์</span></span></button>
+<button class="nav-item" data-target="screen-categories"><i class="ico" data-lucide="tag"></i><span class="lbl"><span class="en">Categories</span><span class="th">หมวดค่าใช้จ่าย</span></span></button>
+<button class="nav-item" data-target="screen-settings"><i class="ico" data-lucide="settings"></i><span class="lbl"><span class="en">Settings</span><span class="th">ตั้งค่าระบบ</span></span></button>
+</aside>
+<main class="main">
+<section class="screen" id="screen-expenses">
+  <div class="topbar">
+    <div>
+      <div class="tb-sub">ALL EXPENSES · JUNE 2026</div>
+      <div class="tb-title">รายการทั้งหมด</div>
+    </div>
+    <div class="tb-actions">
+      <div class="searchbox"><i data-lucide="search"></i><span>ค้นหาร้านค้า / หมายเหตุ…</span></div>
+      <div class="iconbtn"><i data-lucide="sliders-horizontal"></i></div>
+      <button class="btn btn--ghost"><i data-lucide="download"></i> ส่งออก</button>
+      <button class="btn btn--navy"><i data-lucide="plus"></i> เพิ่มรายการ</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- FILTER BAR -->
+    <div class="card card-pad">
+      <div class="seclabel"><i data-lucide="filter"></i> ตัวกรอง</div>
+      <div class="filterbar mt3">
+        <select class="select" style="width:auto"><option>ทุกทริป</option><option>เชียงใหม่ฤดูหนาว</option><option>รีวิวโรงแรมภูเก็ต</option><option>งานแต่งริมเล</option></select>
+        <select class="select" style="width:auto"><option>ช่างภาพทั้งหมด</option><option>สมชาย</option><option>มานี</option><option>ฐิติพร</option><option>อนุชา</option></select>
+        <select class="select" style="width:auto"><option>ทุกหมวด</option><option>น้ำมัน</option><option>ที่พัก</option><option>อาหาร</option><option>การเดินทาง</option><option>ที่จอดรถ</option><option>อุปกรณ์</option><option>อื่น ๆ</option></select>
+        <select class="select" style="width:auto"><option>ทุกสกุลเงิน</option><option>THB ฿</option><option>USD $</option><option>JPY ¥</option></select>
+        <div class="inputgroup" style="width:auto"><span class="addon"><i data-lucide="calendar"></i></span><input value="01 มิ.ย. – 30 มิ.ย. 2026" style="width:170px"></div>
+      </div>
+      <div class="filterbar mt3">
+        <span class="chip active">ทั้งหมด</span>
+        <span class="chip">รออนุมัติ</span>
+        <span class="chip">อนุมัติแล้ว</span>
+        <span class="chip">ถูกปฏิเสธ</span>
+        <span class="chip">จ่ายแล้ว</span>
+        <span class="chip">ร่าง</span>
+        <span class="chip"><i data-lucide="alert-triangle"></i> OCR ต่ำ</span>
+        <span class="chip"><i data-lucide="globe"></i> สกุลเงินต่างประเทศ</span>
+      </div>
+    </div>
+
+    <!-- SUMMARY CHIPS -->
+    <div class="grid-kpi mt4">
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">จำนวนรายการ</div><div class="kpi-ico navy"><i data-lucide="receipt"></i></div></div>
+        <div class="kpi-val">42</div>
+        <div class="kpi-sub">จาก 4 ทริป · 4 ช่างภาพ</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">ยอดรวม (฿)</div><div class="kpi-ico paid"><i data-lucide="wallet"></i></div></div>
+        <div class="kpi-val amt-lg">฿184,920</div>
+        <div class="kpi-sub">≈ รวมแปลงสกุลเงินแล้ว</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">รออนุมัติ</div><div class="kpi-ico pending"><i data-lucide="clock"></i></div></div>
+        <div class="kpi-val amt-lg">฿38,400</div>
+        <div class="kpi-sub">9 รายการ</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">จ่ายแล้ว</div><div class="kpi-ico approved"><i data-lucide="check-check"></i></div></div>
+        <div class="kpi-val amt-lg">฿102,150</div>
+        <div class="kpi-sub">22 รายการ</div>
+      </div>
+    </div>
+
+    <!-- MAIN TABLE -->
+    <div class="card mt4">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="list"></i> รายการเบิกค่าใช้จ่าย · 42 รายการ</div>
+        <span class="link">เรียงตาม: วันที่ล่าสุด ↓</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:34px"></th>
+            <th>รายการ</th>
+            <th>ทริป</th>
+            <th>ช่างภาพ</th>
+            <th>หมวด</th>
+            <th>สถานะ</th>
+            <th class="r">จำนวนเงิน</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="click" style="background:var(--navy-50)">
+            <td><span class="checkbox on"><i data-lucide="check"></i></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="bed"></i></div><div><div class="t-strong">โรงแรม เดอะ สลेट</div><div class="t-sub">2026-06-18</div></div></div></td>
+            <td class="muted2">รีวิวโรงแรมภูเก็ต</td>
+            <td class="muted2">ฐิติพร</td>
+            <td class="muted2">ที่พัก</td>
+            <td><span class="pill pill--pending"><span class="dot"></span>รออนุมัติ</span></td>
+            <td class="r"><span class="amt">$185.00</span><div class="t-sub">≈ ฿6,723</div></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="fuel"></i></div><div><div class="t-strong">ปั๊ม ปตท. แม่ริม</div><div class="t-sub">2026-06-17</div></div></div></td>
+            <td class="muted2">เชียงใหม่ฤดูหนาว</td>
+            <td class="muted2">สมชาย</td>
+            <td class="muted2">น้ำมัน</td>
+            <td><span class="pill pill--approved"><span class="dot"></span>อนุมัติแล้ว</span></td>
+            <td class="r"><span class="amt">฿1,420</span></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="utensils"></i></div><div><div class="t-strong">ร้านข้าวซอยลำดวน</div><div class="t-sub">2026-06-16</div></div></div></td>
+            <td class="muted2">เชียงใหม่ฤดูหนาว</td>
+            <td class="muted2">มานี</td>
+            <td class="muted2">อาหาร</td>
+            <td><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+            <td class="r"><span class="amt">฿980</span></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="camera"></i></div><div><div class="t-strong">เช่าเลนส์ 70-200</div><div class="t-sub">2026-06-15</div></div></div></td>
+            <td class="muted2">งานแต่งริมเล</td>
+            <td class="muted2">อนุชา</td>
+            <td class="muted2">อุปกรณ์</td>
+            <td><span class="pill pill--approved"><span class="dot"></span>อนุมัติแล้ว</span></td>
+            <td class="r"><span class="amt">฿3,500</span></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="bus"></i></div><div><div class="t-strong">แท็กซี่สนามบิน HKT</div><div class="t-sub">2026-06-14</div></div></div></td>
+            <td class="muted2">รีวิวโรงแรมภูเก็ต</td>
+            <td class="muted2">ฐิติพร</td>
+            <td class="muted2">การเดินทาง</td>
+            <td><span class="pill pill--rejected"><span class="dot"></span>ถูกปฏิเสธ</span></td>
+            <td class="r"><span class="amt">฿650</span></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="square-parking"></i></div><div><div class="t-strong">ลานจอดเซ็นทรัล</div><div class="t-sub">2026-06-13</div></div></div></td>
+            <td class="muted2">งานแต่งริมเล</td>
+            <td class="muted2">อนุชา</td>
+            <td class="muted2">ที่จอดรถ</td>
+            <td><span class="pill pill--draft"><span class="dot"></span>ร่าง</span></td>
+            <td class="r"><span class="amt">฿120</span></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="bed"></i></div><div><div class="t-strong">เรียวกัง ฮาโกเน่</div><div class="t-sub">2026-06-11</div></div></div></td>
+            <td class="muted2">เชียงใหม่ฤดูหนาว</td>
+            <td class="muted2">สมชาย</td>
+            <td class="muted2">ที่พัก</td>
+            <td><span class="pill pill--pending"><span class="dot"></span>รออนุมัติ</span></td>
+            <td class="r"><span class="amt">¥18,000</span><div class="t-sub">≈ ฿4,230</div></td>
+          </tr>
+          <tr class="click">
+            <td><span class="checkbox"></span></td>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="more-horizontal"></i></div><div><div class="t-strong">ค่าโดรนถ่ายมุมสูง</div><div class="t-sub">2026-06-10</div></div></div></td>
+            <td class="muted2">งานแต่งริมเล</td>
+            <td class="muted2">มานี</td>
+            <td class="muted2">อื่น ๆ</td>
+            <td><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+            <td class="r"><span class="amt">฿2,000</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="toolbar" style="margin:16px">
+        <div style="display:flex;align-items:center;gap:10px"><i data-lucide="check-square"></i> เลือก 1 รายการ · ฿6,723</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn--ghost btn--sm"><i data-lucide="check"></i> อนุมัติ</button>
+          <button class="btn btn--ghost btn--sm"><i data-lucide="banknote"></i> ทำเครื่องหมายจ่ายแล้ว</button>
+          <button class="btn btn--ghost btn--sm"><i data-lucide="download"></i> ส่งออกที่เลือก</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="file-text"></i> รายละเอียดรายการ · EXP-2026-0418</div>
+        <span class="pill pill--pending"><span class="dot"></span>รออนุมัติ</span>
+      </div>
+      <div class="row" style="padding:20px;align-items:flex-start">
+        <!-- LEFT: receipt + ocr -->
+        <div class="stack" style="width:300px;flex-shrink:0;gap:12px">
+          <div class="seclabel">RECEIPT</div>
+          <div style="border:1.5px dashed var(--line);border-radius:14px;background:var(--surface);height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink4)">
+            <i data-lucide="image" style="width:40px;height:40px"></i>
+            <div class="mono" style="font-weight:700">receipt_4f8a2.jpg</div>
+            <div class="muted">แตะเพื่อดูเต็มจอ</div>
+          </div>
+          <div class="seclabel mt2">OCR CONFIDENCE</div>
+          <div class="filterbar">
+            <span class="chip"><i data-lucide="circle-dollar-sign"></i> จำนวนเงิน 97%</span>
+            <span class="chip"><i data-lucide="calendar"></i> วันที่ 91%</span>
+            <span class="chip" style="color:var(--pend-fg);border-color:var(--pend-bg)"><i data-lucide="store"></i> ร้านค้า 62%</span>
+          </div>
+          <button class="btn btn--ghost btn--block btn--sm"><i data-lucide="download"></i> ดาวน์โหลดใบเสร็จ</button>
+        </div>
+
+        <!-- RIGHT: fields + audit -->
+        <div class="stack" style="flex:1;min-width:0;gap:16px">
+          <div class="card">
+            <div class="frow"><div class="frow-k">หมวด</div><div class="frow-v"><span class="cellmain"><span class="cat" style="width:24px;height:24px;border-radius:7px"><i data-lucide="bed" style="width:14px;height:14px"></i></span> ที่พัก</span></div></div>
+            <div class="frow"><div class="frow-k">จำนวนเงิน</div><div class="frow-v mono">$185.00 USD</div></div>
+            <div class="frow"><div class="frow-k">เรทแลกเปลี่ยน</div><div class="frow-v mono">36.34 THB / USD</div></div>
+            <div class="frow"><div class="frow-k">ยอดสุทธิ ฿</div><div class="frow-v mono" style="color:var(--navy)">฿6,722.90</div></div>
+            <div class="frow"><div class="frow-k">ร้านค้า</div><div class="frow-v">โรงแรม เดอะ สเลท ภูเก็ต <span class="muted">(OCR 62% — ตรวจสอบ)</span></div></div>
+            <div class="frow"><div class="frow-k">วันที่</div><div class="frow-v">18 มิถุนายน 2026</div></div>
+            <div class="frow"><div class="frow-k">ทริป</div><div class="frow-v">รีวิวโรงแรมภูเก็ต</div></div>
+            <div class="frow"><div class="frow-k">ส่งโดย</div><div class="frow-v"><span class="cellmain"><span class="avatar">ฐต</span> ฐิติพร · <span class="muted">thitiporn@gography.co</span></span></div></div>
+            <div class="frow"><div class="frow-k">หมายเหตุ</div><div class="frow-v">ค่าห้องพัก 1 คืนสำหรับถ่ายรีวิวห้อง Ocean Suite ตามแพ็กเกจลูกค้า</div></div>
+            <div class="frow"><div class="frow-k">หมายเหตุแอดมิน</div><div class="frow-v muted">— ยังไม่มี —</div></div>
+            <div class="frow"><div class="frow-k">สร้างเมื่อ</div><div class="frow-v muted2">18 มิ.ย. 2026 · 21:14</div></div>
+            <div class="frow"><div class="frow-k">แก้ไขล่าสุด</div><div class="frow-v muted2">18 มิ.ย. 2026 · 21:20</div></div>
+          </div>
+
+          <div class="card card-pad">
+            <div class="seclabel"><i data-lucide="history"></i> STATUS AUDIT TRAIL</div>
+            <div class="audit mt3">
+              <div class="audit-item done">
+                <div class="t-strong">ส่งเบิก</div>
+                <div class="muted">โดย ฐิติพร · 18 มิ.ย. 2026 · 21:14</div>
+              </div>
+              <div class="audit-item done">
+                <div class="t-strong">แก้ไขจำนวนเงิน</div>
+                <div class="muted">โดย ฐิติพร · 18 มิ.ย. 2026 · 21:20 · ปรับเรทแลกเปลี่ยน</div>
+              </div>
+              <div class="audit-item">
+                <div class="t-strong" style="color:var(--pend-fg)">รออนุมัติ</div>
+                <div class="muted">เข้าคิวอนุมัติของแอดมิน · ตั้งแต่ 18 มิ.ย. 2026 · 21:20</div>
+              </div>
+              <div class="audit-item">
+                <div class="t-strong muted">อนุมัติ</div>
+                <div class="muted">— รอดำเนินการ —</div>
+              </div>
+              <div class="audit-item">
+                <div class="t-strong muted">จ่ายแล้ว</div>
+                <div class="muted">— รอดำเนินการ —</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION FOOTER -->
+      <div class="card-head" style="border-top:1px solid var(--line);border-bottom:0;justify-content:flex-end;gap:8px">
+        <button class="btn btn--ghost"><i data-lucide="external-link"></i> เปิดในคิวอนุมัติ</button>
+        <button class="btn btn--ghost"><i data-lucide="download"></i> ดาวน์โหลดใบเสร็จ</button>
+        <button class="btn btn--ghost"><i data-lucide="pencil"></i> แก้ไข</button>
+        <button class="btn btn--ghost"><i data-lucide="refresh-cw"></i> เปลี่ยนสถานะ</button>
+        <button class="btn btn--navy"><i data-lucide="banknote"></i> ทำเครื่องหมายจ่ายแล้ว</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="screen-payouts">
+  <div class="topbar">
+    <div>
+      <div class="tb-sub">PAYOUTS · JUNE 2026</div>
+      <div class="tb-title">การจ่ายเงิน</div>
+    </div>
+    <div class="tb-actions">
+      <div class="searchbox"><i data-lucide="search"></i><span>ค้นหาช่างภาพ / ทริป…</span></div>
+      <div class="iconbtn"><i data-lucide="bell"></i></div>
+      <button class="btn btn--ghost"><i data-lucide="download"></i> ส่งออกรายงาน</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="grid-kpi">
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">รอจ่าย</div><div class="kpi-ico pending"><i data-lucide="clock"></i></div></div>
+        <div class="kpi-val">฿42,850</div>
+        <div class="kpi-sub">18 รายการ · 4 ช่างภาพ</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">จ่ายแล้ว · เดือนนี้</div><div class="kpi-ico paid"><i data-lucide="banknote"></i></div></div>
+        <div class="kpi-val">฿128,400</div>
+        <div class="kpi-sub">37 รายการ มิ.ย. 2026</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">ช่างภาพที่รอรับเงิน</div><div class="kpi-ico navy"><i data-lucide="users"></i></div></div>
+        <div class="kpi-val">4 คน</div>
+        <div class="kpi-sub">รอนานสุด 6 วัน</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">รอบจ่ายล่าสุด</div><div class="kpi-ico approved"><i data-lucide="check-circle"></i></div></div>
+        <div class="kpi-val">฿18,600</div>
+        <div class="kpi-sub">25 มิ.ย. · โอนธนาคาร</div>
+      </div>
+    </div>
+
+    <div class="grid2 mt6">
+      <div class="stack">
+        <div class="toolbar">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i data-lucide="check-square"></i>
+            <span style="font-weight:700">เลือกแล้ว 3 รายการ · ฿8,400</span>
+          </div>
+          <button class="btn btn--sm" style="background:#fff;color:var(--navy)"><i data-lucide="banknote"></i> ทำเครื่องหมายจ่ายแล้ว (batch)</button>
+        </div>
+
+        <div class="card mt4">
+          <div class="card-head">
+            <div class="seclabel"><i data-lucide="hourglass"></i> รอจ่าย · อนุมัติแล้วยังไม่จ่าย</div>
+            <span class="link">เลือกทั้งหมด</span>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:36px"></th>
+                <th>ช่างภาพ / ทริป</th>
+                <th>รายการ</th>
+                <th>อนุมัติเมื่อ</th>
+                <th class="r">ยอดรวม</th>
+                <th class="r"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="click">
+                <td><span class="checkbox on"><i data-lucide="check"></i></span></td>
+                <td>
+                  <div class="cellmain">
+                    <div class="avatar">สม</div>
+                    <div><div class="t-strong">สมชาย พงษ์ไพร</div><div class="t-sub">เชียงใหม่ฤดูหนาว</div></div>
+                  </div>
+                </td>
+                <td><span class="muted2">5 รายการ</span></td>
+                <td><span class="muted">24 มิ.ย. 2026</span></td>
+                <td class="r"><span class="amt">฿4,200</span></td>
+                <td class="r"><button class="btn btn--navy btn--sm">จ่าย</button></td>
+              </tr>
+              <tr class="click">
+                <td><span class="checkbox on"><i data-lucide="check"></i></span></td>
+                <td>
+                  <div class="cellmain">
+                    <div class="avatar">มน</div>
+                    <div><div class="t-strong">มานี ศรีสุข</div><div class="t-sub">รีวิวโรงแรมภูเก็ต</div></div>
+                  </div>
+                </td>
+                <td><span class="muted2">3 รายการ</span></td>
+                <td><span class="muted">23 มิ.ย. 2026</span></td>
+                <td class="r"><span class="amt">฿2,600</span></td>
+                <td class="r"><button class="btn btn--navy btn--sm">จ่าย</button></td>
+              </tr>
+              <tr class="click">
+                <td><span class="checkbox on"><i data-lucide="check"></i></span></td>
+                <td>
+                  <div class="cellmain">
+                    <div class="avatar">ฐิ</div>
+                    <div><div class="t-strong">ฐิติพร วงศ์ทอง</div><div class="t-sub">งานแต่งริมเล</div></div>
+                  </div>
+                </td>
+                <td><span class="muted2">2 รายการ</span></td>
+                <td><span class="muted">22 มิ.ย. 2026</span></td>
+                <td class="r"><span class="amt">฿1,600</span></td>
+                <td class="r"><button class="btn btn--navy btn--sm">จ่าย</button></td>
+              </tr>
+              <tr class="click">
+                <td><span class="checkbox"></span></td>
+                <td>
+                  <div class="cellmain">
+                    <div class="avatar">อน</div>
+                    <div><div class="t-strong">อนุชา รัตนกุล</div><div class="t-sub">เชียงใหม่ฤดูหนาว</div></div>
+                  </div>
+                </td>
+                <td><span class="muted2">6 รายการ</span></td>
+                <td><span class="muted">21 มิ.ย. 2026</span></td>
+                <td class="r"><span class="amt">฿9,850</span></td>
+                <td class="r"><button class="btn btn--navy btn--sm">จ่าย</button></td>
+              </tr>
+              <tr class="click">
+                <td><span class="checkbox"></span></td>
+                <td>
+                  <div class="cellmain">
+                    <div class="avatar">สม</div>
+                    <div><div class="t-strong">สมชาย พงษ์ไพร</div><div class="t-sub">รีวิวโรงแรมภูเก็ต</div></div>
+                  </div>
+                </td>
+                <td><span class="muted2">2 รายการ</span></td>
+                <td><span class="muted">19 มิ.ย. 2026</span></td>
+                <td class="r"><span class="amt">฿14,600</span></td>
+                <td class="r"><button class="btn btn--navy btn--sm">จ่าย</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card card-pad">
+          <div class="seclabel"><i data-lucide="credit-card"></i> วิธีการจ่าย</div>
+          <div class="muted mt2">บันทึกช่องทางและเลขอ้างอิงเพื่อตรวจสอบย้อนหลังได้</div>
+          <div class="field mt4">
+            <label class="field-label">วันที่จ่าย</label>
+            <input class="input" type="text" value="30 มิ.ย. 2026" readonly>
+          </div>
+          <div class="field mt3">
+            <label class="field-label">ช่องทาง</label>
+            <select class="select">
+              <option>โอนธนาคาร</option>
+              <option>พร้อมเพย์</option>
+              <option>เงินสด</option>
+            </select>
+          </div>
+          <div class="field mt3">
+            <label class="field-label">เลขอ้างอิง / สลิป</label>
+            <input class="input" type="text" placeholder="เช่น TXN-20260630-001">
+            <span class="field-hint">ใช้สำหรับยืนยันกับช่างภาพและตรวจสอบบัญชี</span>
+          </div>
+          <button class="btn btn--navy btn--block mt4"><i data-lucide="check"></i> ยืนยันการจ่าย</button>
+          <div class="divider"></div>
+          <div class="muted" style="display:flex;gap:8px;align-items:flex-start">
+            <i data-lucide="shield-check" style="width:16px;height:16px;flex-shrink:0;margin-top:1px"></i>
+            <span>ทุกการจ่ายถูกบันทึกพร้อมผู้ทำรายการและเวลา ช่างภาพจะเห็นสถานะ "จ่ายแล้ว" ทันที</span>
+          </div>
+        </div>
+
+        <div class="card mt4">
+          <div class="card-head">
+            <div class="seclabel"><i data-lucide="history"></i> ประวัติการจ่าย</div>
+            <span class="link">ดูทั้งหมด →</span>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="cellmain">
+                    <div class="cat"><i data-lucide="banknote"></i></div>
+                    <div><div class="t-strong">อนุชา รัตนกุล</div><div class="t-sub">25 มิ.ย. · โอนธนาคาร · TXN-...0625</div></div>
+                  </div>
+                </td>
+                <td class="r"><div class="amt">฿18,600</div><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cellmain">
+                    <div class="cat"><i data-lucide="banknote"></i></div>
+                    <div><div class="t-strong">มานี ศรีสุข</div><div class="t-sub">20 มิ.ย. · พร้อมเพย์ · TXN-...0620</div></div>
+                  </div>
+                </td>
+                <td class="r"><div class="amt">฿7,400</div><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cellmain">
+                    <div class="cat"><i data-lucide="banknote"></i></div>
+                    <div><div class="t-strong">ฐิติพร วงศ์ทอง</div><div class="t-sub">14 มิ.ย. · โอนธนาคาร · TXN-...0614</div></div>
+                  </div>
+                </td>
+                <td class="r"><div class="amt">฿12,250</div><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cellmain">
+                    <div class="cat"><i data-lucide="banknote"></i></div>
+                    <div><div class="t-strong">สมชาย พงษ์ไพร</div><div class="t-sub">8 มิ.ย. · เงินสด · CASH-0608</div></div>
+                  </div>
+                </td>
+                <td class="r"><div class="amt">฿3,900</div><span class="pill pill--paid"><span class="dot"></span>จ่ายแล้ว</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="screen-members">
+  <div class="topbar">
+    <div>
+      <div class="tb-sub">TEAM · MEMBERS & PERMISSIONS</div>
+      <div class="tb-title">สมาชิก & สิทธิ์</div>
+    </div>
+    <div class="tb-actions">
+      <div class="searchbox"><i data-lucide="search"></i><span>ค้นหาชื่อหรืออีเมล…</span></div>
+      <div class="iconbtn"><i data-lucide="bell"></i></div>
+      <button class="btn btn--navy"><i data-lucide="user-plus"></i> เชิญสมาชิก</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="grid-kpi">
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">สมาชิกทั้งหมด</div><div class="kpi-ico navy"><i data-lucide="users"></i></div></div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-sub">ใช้งานอยู่ 5 · ปิดใช้งาน 1</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">แอดมิน</div><div class="kpi-ico navy"><i data-lucide="shield-check"></i></div></div>
+        <div class="kpi-val">2</div>
+        <div class="kpi-sub">สิทธิ์อนุมัติ &amp; จ่ายเงิน</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">ช่างภาพ</div><div class="kpi-ico paid"><i data-lucide="camera"></i></div></div>
+        <div class="kpi-val">4</div>
+        <div class="kpi-sub">เพิ่มค่าใช้จ่ายได้</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">คำเชิญค้างอยู่</div><div class="kpi-ico pending"><i data-lucide="mail"></i></div></div>
+        <div class="kpi-val">1</div>
+        <div class="kpi-sub">รอตอบรับ · หมดอายุ 7 วัน</div>
+      </div>
+    </div>
+
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="users" style="width:14px;height:14px"></i> รายชื่อสมาชิก</div>
+        <div class="filterbar">
+          <span class="chip active">ทั้งหมด</span>
+          <span class="chip">แอดมิน</span>
+          <span class="chip">ช่างภาพ</span>
+          <span class="chip">ปิดใช้งาน</span>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="r">Trips</th>
+            <th>Joined</th>
+            <th class="r">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="click">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">อธ</div>
+                <div><div class="t-strong">อธิเมศร์ เลิศกิจเวรุจน์</div><div class="t-sub">เจ้าของระบบ · Owner</div></div>
+              </div>
+            </td>
+            <td class="muted2">n87davis@gmail.com</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge admin">แอดมิน</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px">
+                  <option selected>แอดมิน</option>
+                  <option>ช่างภาพ</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="pill pill--approved"><span class="dot"></span>ใช้งานอยู่</span></td>
+            <td class="r"><span class="amt">12</span></td>
+            <td class="muted">2026-01-08</td>
+            <td class="r"><span class="muted" style="font-size:11px">บัญชีของคุณ</span></td>
+          </tr>
+
+          <tr class="click">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">ฐต</div>
+                <div><div class="t-strong">ฐิติพร วัฒนชัย</div><div class="t-sub">ผู้จัดการบัญชี</div></div>
+              </div>
+            </td>
+            <td class="muted2">titiporn@gography.co</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge admin">แอดมิน</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px">
+                  <option selected>แอดมิน</option>
+                  <option>ช่างภาพ</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="pill pill--approved"><span class="dot"></span>ใช้งานอยู่</span></td>
+            <td class="r"><span class="amt">9</span></td>
+            <td class="muted">2026-02-14</td>
+            <td class="r">
+              <div class="row" style="gap:6px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--sm"><i data-lucide="user-cog"></i> เปลี่ยนสิทธิ์</button>
+                <button class="btn btn--ghost btn--sm"><i data-lucide="ban"></i> ปิดการใช้งาน</button>
+                <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="click">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">สม</div>
+                <div><div class="t-strong">สมชาย ภักดีงาม</div><div class="t-sub">ช่างภาพอาวุโส</div></div>
+              </div>
+            </td>
+            <td class="muted2">somchai@gography.co</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge photographer">ช่างภาพ</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px">
+                  <option selected>ช่างภาพ</option>
+                  <option>แอดมิน</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="pill pill--approved"><span class="dot"></span>ใช้งานอยู่</span></td>
+            <td class="r"><span class="amt">7</span></td>
+            <td class="muted">2026-02-20</td>
+            <td class="r">
+              <div class="row" style="gap:6px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--sm"><i data-lucide="user-cog"></i> เปลี่ยนสิทธิ์</button>
+                <button class="btn btn--ghost btn--sm"><i data-lucide="ban"></i> ปิดการใช้งาน</button>
+                <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="click">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">มน</div>
+                <div><div class="t-strong">มานี ศรีสุวรรณ</div><div class="t-sub">ช่างภาพ</div></div>
+              </div>
+            </td>
+            <td class="muted2">manee@gography.co</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge photographer">ช่างภาพ</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px">
+                  <option selected>ช่างภาพ</option>
+                  <option>แอดมิน</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="pill pill--approved"><span class="dot"></span>ใช้งานอยู่</span></td>
+            <td class="r"><span class="amt">5</span></td>
+            <td class="muted">2026-03-05</td>
+            <td class="r">
+              <div class="row" style="gap:6px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--sm"><i data-lucide="user-cog"></i> เปลี่ยนสิทธิ์</button>
+                <button class="btn btn--ghost btn--sm"><i data-lucide="ban"></i> ปิดการใช้งาน</button>
+                <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="click">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">อช</div>
+                <div><div class="t-strong">อนุชา ทองดี</div><div class="t-sub">ช่างภาพฟรีแลนซ์</div></div>
+              </div>
+            </td>
+            <td class="muted2">anucha@gography.co</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge photographer">ช่างภาพ</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px">
+                  <option selected>ช่างภาพ</option>
+                  <option>แอดมิน</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="pill pill--approved"><span class="dot"></span>ใช้งานอยู่</span></td>
+            <td class="r"><span class="amt">3</span></td>
+            <td class="muted">2026-04-11</td>
+            <td class="r">
+              <div class="row" style="gap:6px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--sm"><i data-lucide="user-cog"></i> เปลี่ยนสิทธิ์</button>
+                <button class="btn btn--ghost btn--sm"><i data-lucide="ban"></i> ปิดการใช้งาน</button>
+                <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="click" style="opacity:.62">
+            <td>
+              <div class="cellmain">
+                <div class="avatar">ปว</div>
+                <div><div class="t-strong">ปวีณา จันทร์เพ็ญ</div><div class="t-sub">อดีตช่างภาพ</div></div>
+              </div>
+            </td>
+            <td class="muted2">paweena@gography.co</td>
+            <td>
+              <div class="row" style="gap:8px;align-items:center">
+                <span class="role-badge photographer">ช่างภาพ</span>
+                <select class="select" style="width:140px;height:34px;font-size:13px" disabled>
+                  <option selected>ช่างภาพ</option>
+                  <option>แอดมิน</option>
+                </select>
+              </div>
+            </td>
+            <td><span class="role-badge disabled">ปิดใช้งาน</span></td>
+            <td class="r"><span class="amt">2</span></td>
+            <td class="muted">2026-03-28</td>
+            <td class="r">
+              <div class="row" style="gap:6px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--sm"><i data-lucide="rotate-ccw"></i> เปิดใช้งาน</button>
+                <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt6">
+      <div class="card" style="flex:1">
+        <div class="card-head">
+          <div class="seclabel"><i data-lucide="shield-check" style="width:14px;height:14px"></i> บทบาท &amp; สิทธิ์</div>
+          <span class="role-badge admin">แอดมิน</span>
+        </div>
+        <div class="card-pad">
+          <div class="muted2" style="margin-bottom:8px">ควบคุมการเงินและทีมงานทั้งหมด — ให้เฉพาะคนที่ไว้ใจได้จริง</div>
+          <div class="setting-row"><div class="meta"><div class="name">สร้างและจัดการทริป</div><div class="desc">เปิด/ปิดทริป มอบหมายสมาชิก</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">อนุมัติ / ปฏิเสธการเบิก</div><div class="desc">ตรวจใบเสร็จและเปลี่ยนสถานะ</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">บันทึกการจ่ายเงิน</div><div class="desc">ทำเครื่องหมายจ่ายแล้ว</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">จัดการสมาชิก &amp; สิทธิ์</div><div class="desc">เชิญ เปลี่ยนบทบาท ปิดการใช้งาน</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">ส่งออกรายงาน (Export)</div><div class="desc">ดาวน์โหลด CSV / PDF ทั้งองค์กร</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1">
+        <div class="card-head">
+          <div class="seclabel"><i data-lucide="camera" style="width:14px;height:14px"></i> บทบาท &amp; สิทธิ์</div>
+          <span class="role-badge photographer">ช่างภาพ</span>
+        </div>
+        <div class="card-pad">
+          <div class="muted2" style="margin-bottom:8px">เห็นและทำได้เฉพาะงานของตัวเอง — least-privilege โดยค่าเริ่มต้น</div>
+          <div class="setting-row"><div class="meta"><div class="name">ดูทริปที่ได้รับมอบหมาย</div><div class="desc">เฉพาะทริปที่ถูก add เป็นสมาชิก</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">เพิ่มค่าใช้จ่าย</div><div class="desc">บันทึกรายการในทริปของตน</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">อัปโหลดใบเสร็จ</div><div class="desc">แนบรูป + OCR อัตโนมัติ</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">ดูสถานะการเบิกของตน</div><div class="desc">ติดตามรออนุมัติ / จ่ายแล้ว</div></div><div class="checkbox on"><i data-lucide="check"></i></div></div>
+          <div class="setting-row"><div class="meta"><div class="name">อนุมัติ / จ่ายเงิน / จัดการทีม</div><div class="desc">สงวนไว้สำหรับแอดมินเท่านั้น</div></div><div class="checkbox"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2 mt6">
+      <div class="card">
+        <div class="card-head">
+          <div class="seclabel"><i data-lucide="mail" style="width:14px;height:14px"></i> เชิญสมาชิกใหม่</div>
+          <span class="muted" style="font-size:11px">คำเชิญหมดอายุใน 7 วัน</span>
+        </div>
+        <div class="card-pad">
+          <div class="muted2" style="margin-bottom:14px">ระบบจะส่งลิงก์ตั้งรหัสผ่านไปทางอีเมล — ไม่มีการตั้งรหัสผ่านแทนผู้ใช้ เพื่อความปลอดภัยของบัญชี</div>
+          <div class="stack" style="gap:14px">
+            <div class="field">
+              <label class="field-label">อีเมล</label>
+              <input class="input" type="email" placeholder="name@gography.co" value="natcha@gography.co">
+            </div>
+            <div class="field">
+              <label class="field-label">ชื่อ-นามสกุล</label>
+              <input class="input" type="text" placeholder="ชื่อที่จะแสดงในระบบ" value="ณัชชา ดำรงค์">
+            </div>
+            <div class="field">
+              <label class="field-label">บทบาท</label>
+              <select class="select">
+                <option selected>ช่างภาพ — เพิ่มค่าใช้จ่าย, อัปโหลดใบเสร็จ</option>
+                <option>แอดมิน — อนุมัติ, จ่ายเงิน, จัดการทีม</option>
+              </select>
+              <span class="field-hint">แนะนำให้เริ่มที่ "ช่างภาพ" แล้วค่อยยกระดับเมื่อจำเป็น (Trust ก่อน Growth)</span>
+            </div>
+            <div class="row" style="gap:10px">
+              <button class="btn btn--navy btn--block"><i data-lucide="send"></i> ส่งคำเชิญ</button>
+              <button class="btn btn--ghost"><i data-lucide="x"></i> ยกเลิก</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="seclabel"><i data-lucide="clock" style="width:14px;height:14px"></i> คำเชิญที่รอตอบรับ</div>
+          <span class="link">ดูทั้งหมด →</span>
+        </div>
+        <div class="card-pad">
+          <div class="frow">
+            <div class="frow-k">อีเมล</div>
+            <div class="frow-v">kawin@gography.co</div>
+          </div>
+          <div class="frow">
+            <div class="frow-k">บทบาท</div>
+            <div class="frow-v"><span class="role-badge photographer">ช่างภาพ</span></div>
+          </div>
+          <div class="frow">
+            <div class="frow-k">เชิญโดย</div>
+            <div class="frow-v">ฐิติพร วัฒนชัย · 2026-06-26</div>
+          </div>
+          <div class="frow">
+            <div class="frow-k">สถานะ</div>
+            <div class="frow-v"><span class="pill pill--pending"><span class="dot"></span>รอตอบรับ · เหลือ 3 วัน</span></div>
+          </div>
+          <div class="row mt3" style="gap:10px">
+            <button class="btn btn--ghost btn--sm"><i data-lucide="rotate-cw"></i> ส่งซ้ำ</button>
+            <button class="btn btn--danger btn--sm"><i data-lucide="x-circle"></i> ยกเลิกคำเชิญ</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="seclabel" style="margin-bottom:10px">ACTIVITY · บันทึกการเปลี่ยนสิทธิ์</div>
+          <div class="audit">
+            <div class="audit-item done">
+              <div class="t-strong" style="font-size:13px">ฐิติพร เชิญ kawin@gography.co (ช่างภาพ)</div>
+              <div class="t-sub">2026-06-26 14:20</div>
+            </div>
+            <div class="audit-item done">
+              <div class="t-strong" style="font-size:13px">อธิเมศร์ ปิดการใช้งาน ปวีณา จันทร์เพ็ญ</div>
+              <div class="t-sub">2026-06-18 09:05</div>
+            </div>
+            <div class="audit-item done">
+              <div class="t-strong" style="font-size:13px">อธิเมศร์ เปลี่ยน ฐิติพร เป็นแอดมิน</div>
+              <div class="t-sub">2026-02-14 11:42</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="screen-categories">
+  <div class="topbar">
+    <div>
+      <div class="tb-sub">SETTINGS · CATEGORIES</div>
+      <div class="tb-title">หมวดค่าใช้จ่าย</div>
+    </div>
+    <div class="tb-actions">
+      <div class="searchbox"><i data-lucide="search"></i><span>ค้นหาหมวด…</span></div>
+      <div class="iconbtn"><i data-lucide="bell"></i></div>
+      <button class="btn btn--navy"><i data-lucide="plus"></i> เพิ่มหมวด</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="grid-kpi">
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">หมวดทั้งหมด</div><div class="kpi-ico navy"><i data-lucide="tag"></i></div></div>
+        <div class="kpi-val">8</div>
+        <div class="kpi-sub">เปิดใช้งาน 7 · ปิด 1</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">ใช้งานเดือนนี้</div><div class="kpi-ico approved"><i data-lucide="activity"></i></div></div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-sub">จาก 8 หมวด</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">รายการเดือนนี้</div><div class="kpi-ico paid"><i data-lucide="receipt"></i></div></div>
+        <div class="kpi-val">142</div>
+        <div class="kpi-sub">ผูกกับหมวด</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><div class="kpi-label">ยอดรวมเดือนนี้</div><div class="kpi-ico pending"><i data-lucide="wallet"></i></div></div>
+        <div class="kpi-val">฿198,640</div>
+        <div class="kpi-sub">มิถุนายน 2026</div>
+      </div>
+    </div>
+
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="list"></i> รายการหมวด · ลากเพื่อจัดลำดับ</div>
+        <span class="muted">7 หมวดระบบ · 1 หมวดกำหนดเอง</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:36px"></th>
+            <th>ชื่อหมวด</th>
+            <th>KEY</th>
+            <th>สี</th>
+            <th class="r">ใช้งานเดือนนี้</th>
+            <th>สถานะ</th>
+            <th class="r">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="fuel"></i></div>
+                <div><div class="t-strong">น้ำมัน</div><div class="t-sub">Fuel · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">fuel</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#0A2540;border:1px solid var(--line)"></span><span class="mono muted">#0A2540</span></span></td>
+            <td class="r"><div class="t-strong">38 รายการ</div><div class="t-sub mono">฿52,180</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="bed"></i></div>
+                <div><div class="t-strong">ที่พัก</div><div class="t-sub">Hotel · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">hotel</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#2A4A75;border:1px solid var(--line)"></span><span class="mono muted">#2A4A75</span></span></td>
+            <td class="r"><div class="t-strong">21 รายการ</div><div class="t-sub mono">฿61,400</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="utensils"></i></div>
+                <div><div class="t-strong">อาหาร</div><div class="t-sub">Food · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">food</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#0F9D58;border:1px solid var(--line)"></span><span class="mono muted">#0F9D58</span></span></td>
+            <td class="r"><div class="t-strong">44 รายการ</div><div class="t-sub mono">฿28,920</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="bus"></i></div>
+                <div><div class="t-strong">การเดินทาง</div><div class="t-sub">Transportation · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">trans</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#1D4ED8;border:1px solid var(--line)"></span><span class="mono muted">#1D4ED8</span></span></td>
+            <td class="r"><div class="t-strong">19 รายการ</div><div class="t-sub mono">฿24,560</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="square-parking"></i></div>
+                <div><div class="t-strong">ที่จอดรถ</div><div class="t-sub">Parking · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">park</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#B7791F;border:1px solid var(--line)"></span><span class="mono muted">#B7791F</span></span></td>
+            <td class="r"><div class="t-strong">12 รายการ</div><div class="t-sub mono">฿3,180</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="camera"></i></div>
+                <div><div class="t-strong">อุปกรณ์</div><div class="t-sub">Equipment · หมวดระบบ</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">equip</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#14304F;border:1px solid var(--line)"></span><span class="mono muted">#14304F</span></span></td>
+            <td class="r"><div class="t-strong">8 รายการ</div><div class="t-sub mono">฿28,400</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat"><i data-lucide="plane"></i></div>
+                <div><div class="t-strong">ค่าตั๋วเครื่องบิน</div><div class="t-sub">Flight · หมวดกำหนดเอง</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">flight</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#7A8FB0;border:1px solid var(--line)"></span><span class="mono muted">#7A8FB0</span></span></td>
+            <td class="r"><div class="t-strong">0 รายการ</div><div class="t-sub mono">฿0</div></td>
+            <td><span class="toggle on"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--danger btn--sm"><i data-lucide="trash-2"></i></button>
+            </td>
+          </tr>
+          <tr class="click">
+            <td><span class="muted" style="cursor:grab"><i data-lucide="grip-vertical"></i></span></td>
+            <td>
+              <div class="cellmain">
+                <div class="cat" style="opacity:.55"><i data-lucide="more-horizontal"></i></div>
+                <div><div class="t-strong" style="color:var(--ink3)">อื่น ๆ</div><div class="t-sub">Other · หมวดระบบ · ปิดใช้งาน</div></div>
+              </div>
+            </td>
+            <td><span class="mono muted2">other</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:14px;height:14px;border-radius:999px;background:#94A2BB;border:1px solid var(--line)"></span><span class="mono muted">#94A2BB</span></span></td>
+            <td class="r"><div class="t-strong">0 รายการ</div><div class="t-sub mono">฿0</div></td>
+            <td><span class="toggle"></span></td>
+            <td class="r">
+              <button class="btn btn--ghost btn--sm"><i data-lucide="pencil"></i> แก้ไข</button>
+              <button class="btn btn--ghost btn--sm" title="หมวดระบบ ลบไม่ได้" style="opacity:.45;cursor:not-allowed"><i data-lucide="lock"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2 mt6">
+      <div class="card">
+        <div class="card-head">
+          <div class="seclabel"><i data-lucide="plus-circle"></i> เพิ่ม / แก้ไขหมวด</div>
+          <span class="pill pill--draft"><span class="dot"></span>กำลังแก้ไข: ค่าตั๋วเครื่องบิน</span>
+        </div>
+        <div class="card-pad">
+          <div class="row">
+            <div class="field" style="flex:1">
+              <label class="field-label">ชื่อหมวด (ไทย)</label>
+              <input class="input" type="text" value="ค่าตั๋วเครื่องบิน" placeholder="เช่น ค่าตั๋วเครื่องบิน" />
+            </div>
+            <div class="field" style="flex:1">
+              <label class="field-label">Label (EN)</label>
+              <input class="input" type="text" value="Flight" placeholder="เช่น Flight" />
+            </div>
+          </div>
+          <div class="row mt4">
+            <div class="field" style="flex:1">
+              <label class="field-label">Key (slug)</label>
+              <div class="inputgroup"><span class="addon">cat/</span><input type="text" value="flight" placeholder="flight" /></div>
+              <span class="field-hint">a-z 0-9 _ เท่านั้น · แก้ไม่ได้หลังมีรายการผูก</span>
+            </div>
+            <div class="field" style="flex:1">
+              <label class="field-label">ไอคอน</label>
+              <select class="select">
+                <option>plane — เครื่องบิน</option>
+                <option>fuel — น้ำมัน</option>
+                <option>bed — ที่พัก</option>
+                <option>utensils — อาหาร</option>
+                <option>bus — การเดินทาง</option>
+                <option>square-parking — ที่จอดรถ</option>
+                <option>camera — อุปกรณ์</option>
+                <option>more-horizontal — อื่น ๆ</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mt4">
+            <div class="field" style="flex:1">
+              <label class="field-label">สี</label>
+              <div class="filterbar">
+                <span class="chip active"><span style="width:12px;height:12px;border-radius:999px;background:#7A8FB0;display:inline-block"></span>#7A8FB0</span>
+                <span class="chip"><span style="width:12px;height:12px;border-radius:999px;background:#0A2540;display:inline-block"></span></span>
+                <span class="chip"><span style="width:12px;height:12px;border-radius:999px;background:#0F9D58;display:inline-block"></span></span>
+                <span class="chip"><span style="width:12px;height:12px;border-radius:999px;background:#1D4ED8;display:inline-block"></span></span>
+                <span class="chip"><span style="width:12px;height:12px;border-radius:999px;background:#B7791F;display:inline-block"></span></span>
+                <span class="chip"><span style="width:12px;height:12px;border-radius:999px;background:#C5363A;display:inline-block"></span></span>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row mt4" style="border-top:1px solid var(--line-soft)">
+            <div class="meta">
+              <div class="name">เปิดใช้งาน</div>
+              <div class="desc">หมวดที่เปิดจะปรากฏให้ช่างภาพเลือกตอนสร้างรายการ</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn btn--ghost">ยกเลิก</button>
+            <button class="btn btn--navy"><i data-lucide="check"></i> บันทึกหมวด</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack" style="gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="seclabel"><i data-lucide="eye"></i> ตัวอย่างการแสดงผล</div></div>
+          <div class="card-pad">
+            <div class="cellmain">
+              <div class="cat" style="background:#EFF2F7;color:#7A8FB0"><i data-lucide="plane"></i></div>
+              <div><div class="t-strong">ค่าตั๋วเครื่องบิน</div><div class="t-sub">Flight · cat/flight</div></div>
+            </div>
+            <div class="mt3">
+              <span class="pill pill--draft" style="background:#EFF2F7;color:#7A8FB0"><span class="dot"></span>ค่าตั๋วเครื่องบิน</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="seclabel"><i data-lucide="shield-check"></i> ข้อควรรู้</div></div>
+          <div class="card-pad">
+            <div class="frow" style="padding-left:0;padding-right:0">
+              <div class="frow-k"><i data-lucide="lock"></i></div>
+              <div class="frow-v">หมวดระบบ 7 หมวดเดิม (fuel, hotel, food …) ลบไม่ได้ เพื่อรักษาความถูกต้องของรายการย้อนหลัง</div>
+            </div>
+            <div class="frow" style="padding-left:0;padding-right:0">
+              <div class="frow-k"><i data-lucide="trash-2"></i></div>
+              <div class="frow-v">หมวดที่ยังมีรายการผูกอยู่จะลบไม่ได้ ระบบแนะนำให้ <b>ปิดใช้งาน</b> แทน เพื่อไม่กระทบประวัติ</div>
+            </div>
+            <div class="frow" style="padding-left:0;padding-right:0">
+              <div class="frow-k"><i data-lucide="history"></i></div>
+              <div class="frow-v muted2">ทุกการแก้ไขหมวดถูกบันทึก audit log พร้อมชื่อแอดมินและเวลา</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="screen-settings">
+  <div class="topbar">
+    <div>
+      <div class="tb-sub">SYSTEM · WORKSPACE SETTINGS</div>
+      <div class="tb-title">ตั้งค่าระบบ</div>
+    </div>
+    <div class="tb-actions">
+      <div class="searchbox"><i data-lucide="search"></i><span>ค้นหาการตั้งค่า…</span></div>
+      <div class="iconbtn"><i data-lucide="bell"></i></div>
+      <button class="btn btn--navy"><i data-lucide="save"></i> บันทึกการตั้งค่า</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active">ทั่วไป</div>
+    <div class="tab">การอนุมัติ</div>
+    <div class="tab">การแจ้งเตือน</div>
+    <div class="tab">ข้อมูล &amp; ส่งออก</div>
+  </div>
+
+  <div class="body">
+
+    <!-- 1) Workspace -->
+    <div class="card">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="building-2"></i> WORKSPACE</div>
+        <span class="muted">อัปเดตล่าสุด 28 มิ.ย. 2026 · โดย สมชาย</span>
+      </div>
+      <div class="card-pad">
+        <div class="row" style="align-items:flex-start">
+          <div class="stack" style="align-items:center;gap:10px">
+            <div class="brand-logo" style="width:72px;height:72px;border-radius:16px;font-size:24px;border:1px solid var(--line)">G</div>
+            <button class="btn btn--ghost btn--sm"><i data-lucide="upload"></i> อัปโหลด</button>
+            <div class="field-hint" style="text-align:center">PNG/SVG · สูงสุด 1MB</div>
+          </div>
+          <div class="stack" style="flex:1;gap:16px">
+            <div class="row">
+              <div class="field" style="flex:1">
+                <label class="field-label">ชื่อองค์กร</label>
+                <input class="input" value="GoGraphy" />
+                <span class="field-hint">แสดงบนหัวรายงานและเอกสารส่งออก</span>
+              </div>
+              <div class="field" style="flex:1">
+                <label class="field-label">โดเมนทีม</label>
+                <div class="inputgroup"><span class="addon">@</span><input value="gography.co" /></div>
+                <span class="field-hint">ใช้ตรวจสิทธิ์อีเมลสมาชิกใหม่</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field" style="flex:1">
+                <label class="field-label">สกุลเงินหลัก</label>
+                <select class="select">
+                  <option>THB · บาทไทย (฿)</option>
+                  <option>USD · ดอลลาร์สหรัฐ ($)</option>
+                  <option>JPY · เยนญี่ปุ่น (¥)</option>
+                  <option>EUR · ยูโร (€)</option>
+                </select>
+                <span class="field-hint">ยอดทุกรายการถูกแปลงเป็น THB เพื่อสรุป</span>
+              </div>
+              <div class="field" style="flex:1">
+                <label class="field-label">เขตเวลา</label>
+                <select class="select">
+                  <option>Asia/Bangkok (GMT+7)</option>
+                  <option>Asia/Tokyo (GMT+9)</option>
+                  <option>UTC (GMT+0)</option>
+                </select>
+                <span class="field-hint">ใช้กับวันที่ใบเสร็จและ audit log</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) Approval rules -->
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="shield-check"></i> APPROVAL RULES · กฎการอนุมัติ</div>
+        <span class="pill pill--approved"><span class="dot"></span>Trust-first</span>
+      </div>
+      <div class="card-pad" style="padding-top:6px;padding-bottom:6px">
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">ต้องแนบใบเสร็จเสมอ</div>
+            <div class="desc">รายการที่ไม่มีรูปใบเสร็จจะส่งเข้าอนุมัติไม่ได้</div>
+          </div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">อนุมัติอัตโนมัติเมื่อยอดน้อย</div>
+            <div class="desc">รายการที่ยอด ≤ เกณฑ์ และมีใบเสร็จ จะถูกอนุมัติทันที</div>
+          </div>
+          <div class="row" style="align-items:center;gap:12px">
+            <div class="inputgroup" style="width:140px"><span class="addon">฿</span><input value="500" class="mono" /></div>
+            <div class="toggle"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">ใครอนุมัติได้</div>
+            <div class="desc">กำหนดบทบาทที่มีสิทธิ์อนุมัติหรือปฏิเสธรายการ</div>
+          </div>
+          <select class="select" style="width:200px">
+            <option>Admin เท่านั้น</option>
+            <option>Admin + หัวหน้าทริป</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">กำหนดเรทแลกเปลี่ยนเองตอนอนุมัติ</div>
+            <div class="desc">ผู้อนุมัติแก้ exchange_rate ได้ก่อนยืนยันยอด THB</div>
+          </div>
+          <div class="toggle on"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3) Notifications -->
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="bell-ring"></i> NOTIFICATIONS · การแจ้งเตือน</div>
+        <span class="muted">ส่งสรุปเหตุการณ์ไปยังช่องทางที่เปิดใช้งาน</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ช่องทาง</th>
+            <th>ปลายทาง</th>
+            <th>รายการใหม่</th>
+            <th>อนุมัติ</th>
+            <th>ถูกปฏิเสธ</th>
+            <th class="r">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="message-circle"></i></div><div><div class="t-strong">LINE Notify</div><div class="t-sub">กลุ่ม Finance · GoGraphy</div></div></div></td>
+            <td class="muted2 mono">…OAuth token ****8f2c</td>
+            <td><div class="checkbox on"><i data-lucide="check"></i></div></td>
+            <td><div class="checkbox on"><i data-lucide="check"></i></div></td>
+            <td><div class="checkbox on"><i data-lucide="check"></i></div></td>
+            <td class="r"><div class="toggle on" style="margin-left:auto"></div></td>
+          </tr>
+          <tr>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="mail"></i></div><div><div class="t-strong">Email</div><div class="t-sub">สรุปรายวัน 18:00</div></div></div></td>
+            <td class="muted2 mono">finance@gography.co</td>
+            <td><div class="checkbox on"><i data-lucide="check"></i></div></td>
+            <td><div class="checkbox"></div></td>
+            <td><div class="checkbox on"><i data-lucide="check"></i></div></td>
+            <td class="r"><div class="toggle on" style="margin-left:auto"></div></td>
+          </tr>
+          <tr>
+            <td><div class="cellmain"><div class="cat"><i data-lucide="send"></i></div><div><div class="t-strong">Telegram</div><div class="t-sub">ยังไม่เชื่อมต่อ</div></div></div></td>
+            <td class="muted">—</td>
+            <td><div class="checkbox"></div></td>
+            <td><div class="checkbox"></div></td>
+            <td><div class="checkbox"></div></td>
+            <td class="r"><div class="toggle" style="margin-left:auto"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4) Data & export -->
+    <div class="card mt6">
+      <div class="card-head">
+        <div class="seclabel"><i data-lucide="database"></i> DATA &amp; EXPORT · ข้อมูล &amp; ส่งออก</div>
+      </div>
+      <div class="card-pad" style="padding-top:6px;padding-bottom:6px">
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">ส่งออกรายจ่ายทั้งหมด</div>
+            <div class="desc">ดาวน์โหลด expenses ทุกทริปเป็น CSV (รวมยอด THB และสถานะ)</div>
+          </div>
+          <button class="btn btn--ghost btn--sm"><i data-lucide="download"></i> Export ทั้งหมด (CSV)</button>
+        </div>
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">รูปแบบวันที่</div>
+            <div class="desc">ใช้แสดงผลทั่วทั้งระบบและไฟล์ส่งออก</div>
+          </div>
+          <select class="select" style="width:200px">
+            <option>2026-06-30 (YYYY-MM-DD)</option>
+            <option>30/06/2026 (DD/MM/YYYY)</option>
+            <option>30 มิ.ย. 2569 (ไทย)</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div class="meta">
+            <div class="name">ภาษาระบบ</div>
+            <div class="desc">ภาษาหลักของอินเทอร์เฟซสำหรับสมาชิกใหม่</div>
+          </div>
+          <select class="select" style="width:200px">
+            <option>ไทย</option>
+            <option>English</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit note (Trust ก่อน Growth) -->
+    <div class="card mt4 card-pad" style="display:flex;align-items:center;gap:10px">
+      <i data-lucide="history"></i>
+      <span class="muted2">ทุกการเปลี่ยนแปลงการตั้งค่าจะถูกบันทึกใน audit log พร้อมชื่อผู้แก้และเวลา</span>
+      <span class="link" style="margin-left:auto">ดูประวัติการแก้ไข →</span>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="row mt4" style="justify-content:flex-end">
+      <button class="btn btn--ghost">ยกเลิก</button>
+      <button class="btn btn--navy"><i data-lucide="save"></i> บันทึกการตั้งค่า</button>
+    </div>
+
+  </div>
+</section>
+</main>
+</div>
+<script>
+lucide.createIcons();
+function activate(id){
+  document.querySelectorAll('.nav-item[data-target]').forEach(function(n){n.classList.toggle('active', n.getAttribute('data-target')===id);});
+  document.querySelectorAll('.screen').forEach(function(sc){sc.classList.toggle('active', sc.id===id);});
+  var m=document.querySelector('.main'); if(m){m.scrollTop=0;}
+  lucide.createIcons();
+}
+document.querySelectorAll('.nav-item[data-target]').forEach(function(n){n.addEventListener('click', function(){activate(n.getAttribute('data-target'));});});
+document.querySelectorAll('.tabs').forEach(function(t){t.querySelectorAll('.tab').forEach(function(tab){tab.addEventListener('click', function(){t.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});tab.classList.add('active');});});});
+document.querySelectorAll('.toggle,.checkbox').forEach(function(el){el.addEventListener('click', function(){el.classList.toggle('on');});});
+var first=document.querySelector('.nav-item[data-target]'); if(first){activate(first.getAttribute('data-target'));}
+</script>
+</body>
+</html>
